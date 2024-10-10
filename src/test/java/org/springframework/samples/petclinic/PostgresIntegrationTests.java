@@ -115,7 +115,7 @@ public class PostgresIntegrationTests {
 				for (String name : names) {
 					String resolved = environment.getProperty(name);
 					String value = source.getProperty(name).toString();
-					if (resolved.equals(value)) {
+					if (resolved != null && resolved.equals(value)) { // Added null check
 						log.info(name + "=" + resolved);
 					}
 					else {

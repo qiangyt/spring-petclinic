@@ -58,6 +58,9 @@ public class Pet extends NamedEntity {
 	private final Set<Visit> visits = new LinkedHashSet<>();
 
 	public void setBirthDate(LocalDate birthDate) {
+		if (birthDate != null && birthDate.isAfter(LocalDate.now())) {
+			throw new IllegalArgumentException("Birth date cannot be in the future");
+		}
 		this.birthDate = birthDate;
 	}
 

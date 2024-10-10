@@ -77,7 +77,11 @@ class PetController {
 		if (owner == null) {
 			throw new IllegalArgumentException("Owner ID not found: " + ownerId);
 		}
-		return owner.getPet(petId);
+		Pet pet = owner.getPet(petId);
+		if (pet == null) {
+			throw new IllegalArgumentException("Pet ID not found: " + petId);
+		}
+		return pet;
 	}
 
 	@InitBinder("owner")

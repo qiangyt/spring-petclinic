@@ -60,7 +60,12 @@ class OwnerController {
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
-		return ownerId == null ? new Owner() : this.owners.findById(ownerId);
+		Owner owner = ownerId == null ? new Owner() : this.owners.findById(ownerId);
+		if (owner == null) {
+			// Handle the case where the owner is not found
+			// For example, you could throw an exception or return a default owner
+		}
+		return owner;
 	}
 
 	@GetMapping("/owners/new")
@@ -99,7 +104,7 @@ class OwnerController {
 		Page<Owner> ownersResults = findPaginatedForOwnersLastName(page, owner.getLastName());
 		if (ownersResults.isEmpty()) {
 			// no owners found
-			result.rejectValue("lastName", "notFound", "not found");
+			result.rejectValue("lastName", "notFound", "No owners found with the specified last name.");
 			return "owners/findOwners";
 		}
 

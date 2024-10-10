@@ -36,6 +36,10 @@ public class PetValidator implements Validator {
 	@Override
 	public void validate(Object obj, Errors errors) {
 		Pet pet = (Pet) obj;
+		if (pet == null) {
+			errors.reject("pet", "Pet object cannot be null");
+			return;
+		}
 		String name = pet.getName();
 		// name validation
 		if (!StringUtils.hasText(name)) {

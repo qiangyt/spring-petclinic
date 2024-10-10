@@ -1,5 +1,5 @@
 <html xmlns:th="https://www.thymeleaf.org"
-  th:replace="~{fragments/layout :: layout (~{::body},'owners')}">
+  th:insert="~{fragments/layout :: layout (~{::body},'owners')}">
 
 <body>
 
@@ -13,15 +13,15 @@
       <div class="form-group">
         <label class="col-sm-2 control-label">Owner</label>
         <div class="col-sm-10">
-          <span th:text="${owner?.firstName + ' ' + owner?.lastName}" />
+          <span th:text="${owner != null ? owner.firstName + ' ' + owner.lastName : 'Unknown Owner'}" />
         </div>
       </div>
       <input
-        th:replace="~{fragments/inputField :: input ('Name', 'name', 'text')}" />
+        th:insert="~{fragments/inputField :: input ('Name', 'name', 'text')}" />
       <input
-        th:replace="~{fragments/inputField :: input ('Birth Date', 'birthDate', 'date')}" />
+        th:insert="~{fragments/inputField :: input ('Birth Date', 'birthDate', 'date')}" />
       <input
-        th:replace="~{fragments/selectField :: select ('Type', 'type', ${types})}" />
+        th:insert="~{fragments/selectField :: select ('Type', 'type', ${types})}" />
     </div>
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">

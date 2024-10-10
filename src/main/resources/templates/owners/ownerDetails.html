@@ -38,9 +38,9 @@
       </tr>
     </table>
   
-    <a th:href="@{__${owner.id}__/edit}" class="btn btn-primary">Edit
+    <a th:href="@{/${owner.id}/edit}" class="btn btn-primary">Edit
       Owner</a>
-    <a th:href="@{__${owner.id}__/pets/new}" class="btn btn-primary">Add
+    <a th:href="@{/${owner.id}/pets/new}" class="btn btn-primary">Add
       New Pet</a>
   
     <br />
@@ -72,11 +72,11 @@
             </thead>
             <tr th:each="visit : ${pet.visits}">
               <td th:text="${#temporals.format(visit.date, 'yyyy-MM-dd')}"></td>
-              <td th:text="${visit?.description}"></td>
+              <td th:text="${visit != null ? visit.description : ''}"></td>
             </tr>
             <tr>
-              <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/edit}">Edit Pet</a></td>
-              <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/visits/new}">Add Visit</a></td>
+              <td><a th:href="@{/${owner.id}/pets/${pet.id}/edit}">Edit Pet</a></td>
+              <td><a th:href="@{/${owner.id}/pets/${pet.id}/visits/new}">Add Visit</a></td>
             </tr>
           </table>
         </td>

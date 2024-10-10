@@ -35,7 +35,7 @@ class CrashControllerTests {
 	@Test
 	void testTriggerException() {
 		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> testee.triggerException())
-			.withMessageContaining("Expected: controller used to showcase what happens when an exception is thrown");
+			.withMessageContaining("Expected: controller used to showcase what happens when an exception is thrown"); // Update this message to match the actual exception message
 	}
 
 }

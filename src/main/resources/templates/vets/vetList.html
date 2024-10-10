@@ -17,9 +17,10 @@
   <tbody>
   <tr th:each="vet : ${listVets}">
     <td th:text="${vet.firstName + ' ' + vet.lastName}"></td>
-    <td><span th:each="specialty : ${vet.specialties}"
-              th:text="${specialty.name + ' '}"/> <span
-      th:if="${vet.nrOfSpecialties == 0}">none</span></td>
+    <td>
+      <span th:if="${#lists.isEmpty(vet.specialties)}">none</span>
+      <span th:each="specialty : ${vet.specialties}" th:text="${specialty.name + ' '}"/> 
+    </td>
   </tr>
   </tbody>
 </table>
@@ -32,26 +33,27 @@
       <span th:unless="${currentPage != i}">[[${i}]]</span>
     </span>
   <span>]&nbsp;</span>
-  <span>
+  <span th:if="${totalPages > 0}">
       <a th:if="${currentPage > 1}" th:href="@{'/vets.html?page=1'}" title="First"
          class="fa fa-fast-backward"></a>
       <span th:unless="${currentPage > 1}" title="First" class="fa fa-fast-backward"></span>
     </span>
-  <span>
+  <span th:if="${totalPages > 0}">
       <a th:if="${currentPage > 1}" th:href="@{'/vets.html?page=__${currentPage - 1}__'}" title="Previous"
          class="fa fa-step-backward"></a>
       <span th:unless="${currentPage > 1}" title="Previous" class="fa fa-step-backward"></span>
     </span>
-  <span>
+  <span th:if="${totalPages > 0}">
       <a th:if="${currentPage < totalPages}" th:href="@{'/vets.html?page=__${currentPage + 1}__'}" title="Next"
          class="fa fa-step-forward"></a>
       <span th:unless="${currentPage < totalPages}" title="Next" class="fa fa-step-forward"></span>
     </span>
-  <span>
+  <span th:if="${totalPages > 0}">
       <a th:if="${currentPage < totalPages}" th:href="@{'/vets.html?page=__${totalPages}__'}" title="Last"
          class="fa fa-fast-forward"></a>
       <span th:unless="${currentPage < totalPages}" title="Last" class="fa fa-fast-forward"></span>
     </span>
+  </span>
 </div>
 </body>
 </html>

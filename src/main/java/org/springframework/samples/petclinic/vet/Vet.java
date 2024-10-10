@@ -25,13 +25,15 @@ import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
 import org.springframework.samples.petclinic.model.Person;
 
+// Removed JAXB import
+// import jakarta.xml.bind.annotation.XmlElement;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.xml.bind.annotation.XmlElement;
 
 /**
  * Simple JavaBean domain object representing a veterinarian.
@@ -61,7 +63,8 @@ public class Vet extends Person {
 		this.specialties = specialties;
 	}
 
-	@XmlElement
+	// Replaced JAXB annotation with a comment or alternative serialization method
+	// @XmlElement
 	public List<Specialty> getSpecialties() {
 		List<Specialty> sortedSpecs = new ArrayList<>(getSpecialtiesInternal());
 		PropertyComparator.sort(sortedSpecs, new MutableSortDefinition("name", true, true));

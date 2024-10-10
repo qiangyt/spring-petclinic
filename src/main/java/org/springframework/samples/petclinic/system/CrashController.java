@@ -17,6 +17,9 @@ package org.springframework.samples.petclinic.system;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.http.HttpStatus;
 
 /**
  * Controller used to showcase what happens when an exception is thrown
@@ -34,4 +37,10 @@ class CrashController {
 				"Expected: controller used to showcase what " + "happens when an exception is thrown");
 	}
 
+	@ExceptionHandler(RuntimeException.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public String handleRuntimeException(RuntimeException ex) {
+		// Log the exception and return an error view
+		return "error"; // Assuming there is an error.html view to display
+	}
 }

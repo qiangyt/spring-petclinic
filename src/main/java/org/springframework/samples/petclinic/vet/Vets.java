@@ -33,7 +33,7 @@ public class Vets {
 	private List<Vet> vets;
 
 	@XmlElement
-	public List<Vet> getVetList() {
+	public List<Vet> getVets() { // Renamed method to adhere to JavaBeans naming conventions
 		if (vets == null) {
 			vets = new ArrayList<>();
 		}

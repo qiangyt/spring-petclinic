@@ -29,6 +29,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest; // Added import for PageRequest
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.OwnerRepository;
 import org.springframework.samples.petclinic.owner.Pet;
@@ -79,7 +80,7 @@ class ClinicServiceTests {
 	@Autowired
 	protected VetRepository vets;
 
-	Pageable pageable;
+	Pageable pageable = PageRequest.of(0, 10); // Initialized pageable
 
 	@Test
 	void shouldFindOwnersByLastName() {
