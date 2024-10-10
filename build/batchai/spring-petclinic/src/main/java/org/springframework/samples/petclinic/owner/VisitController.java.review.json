@@ -1,0 +1,24 @@
+{
+    "has_issue": false,
+    "overall_severity": "",
+    "issues": [],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\npackage org.springframework.samples.petclinic.owner;\n\nimport java.util.Map;\n\nimport org.springframework.stereotype.Controller;\nimport org.springframework.validation.BindingResult;\nimport org.springframework.web.bind.WebDataBinder;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.InitBinder;\nimport org.springframework.web.bind.annotation.ModelAttribute;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.PostMapping;\n\nimport jakarta.validation.Valid;\nimport org.springframework.web.servlet.mvc.support.RedirectAttributes;\n\n/**\n * @author Juergen Hoeller\n * @author Ken Krebs\n * @author Arjen Poutsma\n * @author Michael Isvy\n * @author Dave Syer\n */\n@Controller\nclass VisitController {\n\n\tprivate final OwnerRepository owners;\n\n\tpublic VisitController(OwnerRepository owners) {\n\t\tthis.owners = owners;\n\t}\n\n\t@InitBinder\n\tpublic void setAllowedFields(WebDataBinder dataBinder) {\n\t\tdataBinder.setDisallowedFields(\"id\");\n\t}\n\n\t/**\n\t * Called before each and every @RequestMapping annotated method. 2 goals: - Make sure\n\t * we always have fresh data - Since we do not use the session scope, make sure that\n\t * Pet object always has an id (Even though id is not part of the form fields)\n\t * @param petId\n\t * @return Pet\n\t */\n\t@ModelAttribute(\"visit\")\n\tpublic Visit loadPetWithVisit(@PathVariable(\"ownerId\") int ownerId, @PathVariable(\"petId\") int petId,\n\t\t\tMap\u003cString, Object\u003e model) {\n\t\tOwner owner = this.owners.findById(ownerId);\n\n\t\tPet pet = owner.getPet(petId);\n\t\tmodel.put(\"pet\", pet);\n\t\tmodel.put(\"owner\", owner);\n\n\t\tVisit visit = new Visit();\n\t\tpet.addVisit(visit);\n\t\treturn visit;\n\t}\n\n\t// Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is\n\t// called\n\t@GetMapping(\"/owners/{ownerId}/pets/{petId}/visits/new\")\n\tpublic String initNewVisitForm() {\n\t\treturn \"pets/createOrUpdateVisitForm\";\n\t}\n\n\t// Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is\n\t// called\n\t@PostMapping(\"/owners/{ownerId}/pets/{petId}/visits/new\")\n\tpublic String processNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,\n\t\t\tBindingResult result, RedirectAttributes redirectAttributes) {\n\t\tif (result.hasErrors()) {\n\t\t\treturn \"pets/createOrUpdateVisitForm\";\n\t\t}\n\n\t\towner.addVisit(petId, visit);\n\t\tthis.owners.save(owner);\n\t\tredirectAttributes.addFlashAttribute(\"message\", \"Your visit has been booked\");\n\t\treturn \"redirect:/owners/{ownerId}\";\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 23318809491,
+        "EvaluatedPromptTokens": 1177,
+        "OpenAiUsage": {
+            "completion_tokens": 949,
+            "prompt_tokens": 1193,
+            "total_tokens": 2142,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

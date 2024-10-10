@@ -1,0 +1,49 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Incorrect Thymeleaf URL syntax",
+            "detailed_explaination": "The Thymeleaf expressions for the href attributes use '__' which is not a valid syntax for URL expressions in Thymeleaf. The correct syntax should use '/' instead of '__'.",
+            "suggestion": "Change the href attributes from '@{__${owner.id}__/edit}' to '@{/${owner.id}/edit}' and similarly for other href attributes.",
+            "issue_line_begin": 26,
+            "issue_line_end": 26,
+            "issue_reference_urls": [
+                "https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#url-expressions"
+            ],
+            "severity": "minor",
+            "severity_reason": "This issue can lead to incorrect URL generation, affecting navigation."
+        },
+        {
+            "short_description": "Potential null pointer exception",
+            "detailed_explaination": "The expression 'visit?.description' could lead to a null pointer exception if 'visit' is null. Although the safe navigation operator is used, it is better to ensure that 'visit' is not null before accessing its properties.",
+            "suggestion": "Consider adding a check to ensure 'visit' is not null before accessing its properties.",
+            "issue_line_begin": 66,
+            "issue_line_end": 66,
+            "issue_reference_urls": [
+                "https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#conditional-expressions"
+            ],
+            "severity": "minor",
+            "severity_reason": "This could lead to runtime exceptions if not handled properly."
+        }
+    ],
+    "fixed_code": "\u003c!DOCTYPE html\u003e\n\n\u003chtml xmlns:th=\"https://www.thymeleaf.org\"\n  th:replace=\"~{fragments/layout :: layout (~{::body},'owners')}\"\u003e\n\n  \u003cbody\u003e\n  \n  \n    \u003ch2\u003eOwner Information\u003c/h2\u003e\n\n    \u003cdiv th:if=\"${message}\" class=\"alert alert-success\" id=\"success-message\"\u003e\n      \u003cspan th:text=\"${message}\"\u003e\u003c/span\u003e\n    \u003c/div\u003e\n\n    \u003cdiv th:if=\"${error}\" class=\"alert alert-danger\" id=\"error-message\"\u003e\n      \u003cspan th:text=\"${error}\"\u003e\u003c/span\u003e\n    \u003c/div\u003e\n\n\n\n\n    \u003ctable class=\"table table-striped\" th:object=\"${owner}\"\u003e\n      \u003ctr\u003e\n        \u003cth\u003eName\u003c/th\u003e\n        \u003ctd\u003e\u003cb th:text=\"*{firstName + ' ' + lastName}\"\u003e\u003c/b\u003e\u003c/td\u003e\n      \u003c/tr\u003e\n      \u003ctr\u003e\n        \u003cth\u003eAddress\u003c/th\u003e\n        \u003ctd th:text=\"*{address}\"\u003e\u003c/td\u003e\n      \u003c/tr\u003e\n      \u003ctr\u003e\n        \u003cth\u003eCity\u003c/th\u003e\n        \u003ctd th:text=\"*{city}\"\u003e\u003c/td\u003e\n      \u003c/tr\u003e\n      \u003ctr\u003e\n        \u003cth\u003eTelephone\u003c/th\u003e\n        \u003ctd th:text=\"*{telephone}\"\u003e\u003c/td\u003e\n      \u003c/tr\u003e\n    \u003c/table\u003e\n  \n    \u003ca th:href=\"@{/${owner.id}/edit}\" class=\"btn btn-primary\"\u003eEdit\n      Owner\u003c/a\u003e\n    \u003ca th:href=\"@{/${owner.id}/pets/new}\" class=\"btn btn-primary\"\u003eAdd\n      New Pet\u003c/a\u003e\n  \n    \u003cbr /\u003e\n    \u003cbr /\u003e\n    \u003cbr /\u003e\n    \u003ch2\u003ePets and Visits\u003c/h2\u003e\n  \n    \u003ctable class=\"table table-striped\"\u003e\n  \n      \u003ctr th:each=\"pet : ${owner.pets}\"\u003e\n        \u003ctd valign=\"top\"\u003e\n          \u003cdl class=\"dl-horizontal\"\u003e\n            \u003cdt\u003eName\u003c/dt\u003e\n            \u003cdd th:text=\"${pet.name}\"\u003e\u003c/dd\u003e\n            \u003cdt\u003eBirth Date\u003c/dt\u003e\n            \u003cdd\n              th:text=\"${#temporals.format(pet.birthDate, 'yyyy-MM-dd')}\"\u003e\u003c/dd\u003e\n            \u003cdt\u003eType\u003c/dt\u003e\n            \u003cdd th:text=\"${pet.type}\"\u003e\u003c/dd\u003e\n          \u003c/dl\u003e\n        \u003c/td\u003e\n        \u003ctd valign=\"top\"\u003e\n          \u003ctable class=\"table-condensed\"\u003e\n            \u003cthead\u003e\n              \u003ctr\u003e\n                \u003cth\u003eVisit Date\u003c/th\u003e\n                \u003cth\u003eDescription\u003c/th\u003e\n              \u003c/tr\u003e\n            \u003c/thead\u003e\n            \u003ctr th:each=\"visit : ${pet.visits}\"\u003e\n              \u003ctd th:text=\"${#temporals.format(visit.date, 'yyyy-MM-dd')}\"\u003e\u003c/td\u003e\n              \u003ctd th:text=\"${visit != null ? visit.description : ''}\"\u003e\u003c/td\u003e\n            \u003c/tr\u003e\n            \u003ctr\u003e\n              \u003ctd\u003e\u003ca th:href=\"@{/${owner.id}/pets/${pet.id}/edit}\"\u003eEdit Pet\u003c/a\u003e\u003c/td\u003e\n              \u003ctd\u003e\u003ca th:href=\"@{/${owner.id}/pets/${pet.id}/visits/new}\"\u003eAdd Visit\u003c/a\u003e\u003c/td\u003e\n            \u003c/tr\u003e\n          \u003c/table\u003e\n        \u003c/td\u003e\n      \u003c/tr\u003e\n  \n    \u003c/table\u003e\n    \u003cscript\u003e\n    // Function to hide the success and error messages after 3 seconds\n    function hideMessages() {\n        setTimeout(function() {\n            document.getElementById(\"success-message\").style.display = \"none\";\n            document.getElementById(\"error-message\").style.display = \"none\";\n        }, 3000); // 3000 milliseconds (3 seconds)\n    }\n\n    // Call the function to hide messages\n    hideMessages();\n\u003c/script\u003e\n\n  \u003c/body\u003e\n\n\n\u003c/html\u003e\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 19980470894,
+        "EvaluatedPromptTokens": 1224,
+        "OpenAiUsage": {
+            "completion_tokens": 1146,
+            "prompt_tokens": 1238,
+            "total_tokens": 2384,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

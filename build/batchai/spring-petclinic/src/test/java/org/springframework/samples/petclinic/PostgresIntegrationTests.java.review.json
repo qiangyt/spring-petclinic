@@ -1,0 +1,49 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Potential NullPointerException in printProperties method",
+            "detailed_explaination": "In the printProperties method, the variable 'resolved' is assigned the value of 'environment.getProperty(name)'. If 'name' does not exist in the environment, 'resolved' will be null. This can lead to a NullPointerException when the code checks if 'resolved.equals(value)'.",
+            "suggestion": "Add a null check for 'resolved' before calling 'equals' to prevent potential NullPointerException.",
+            "issue_line_begin": 92,
+            "issue_line_end": 92,
+            "issue_reference_urls": [
+                "https://docs.oracle.com/javase/8/docs/api/java/util/Objects.html#equals-java.lang.Object-java.lang.Object-"
+            ],
+            "severity": "minor",
+            "severity_reason": "This issue could lead to runtime exceptions, affecting the stability of the application."
+        },
+        {
+            "short_description": "Inefficient property source iteration",
+            "detailed_explaination": "The method findPropertiesPropertySources iterates through all property sources and checks if each source is an instance of EnumerablePropertySource. This could be optimized by using a stream to filter the sources more efficiently.",
+            "suggestion": "Consider using Java Streams to filter and collect EnumerablePropertySource instances for better readability and performance.",
+            "issue_line_begin": 82,
+            "issue_line_end": 87,
+            "issue_reference_urls": [
+                "https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html"
+            ],
+            "severity": "minor",
+            "severity_reason": "While this does not directly cause issues, improving the efficiency and readability of the code is beneficial."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n\npackage org.springframework.samples.petclinic;\n\nimport static org.assertj.core.api.Assertions.assertThat;\nimport static org.junit.jupiter.api.Assumptions.assumeTrue;\n\nimport java.util.Arrays;\nimport java.util.LinkedList;\nimport java.util.List;\n\nimport org.apache.commons.logging.Log;\nimport org.apache.commons.logging.LogFactory;\nimport org.junit.jupiter.api.BeforeAll;\nimport org.junit.jupiter.api.Test;\nimport org.junit.jupiter.api.condition.DisabledInNativeImage;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.builder.SpringApplicationBuilder;\nimport org.springframework.boot.context.event.ApplicationPreparedEvent;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.context.SpringBootTest.WebEnvironment;\nimport org.springframework.boot.test.web.server.LocalServerPort;\nimport org.springframework.boot.web.client.RestTemplateBuilder;\nimport org.springframework.context.ApplicationListener;\nimport org.springframework.core.env.ConfigurableEnvironment;\nimport org.springframework.core.env.EnumerablePropertySource;\nimport org.springframework.core.env.PropertySource;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.RequestEntity;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.samples.petclinic.vet.VetRepository;\nimport org.springframework.test.context.ActiveProfiles;\nimport org.springframework.web.client.RestTemplate;\nimport org.testcontainers.DockerClientFactory;\n\n@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = { \"spring.docker.compose.skip.in-tests=false\", //\n\t\t\"spring.docker.compose.profiles.active=postgres\" })\n@ActiveProfiles(\"postgres\")\n@DisabledInNativeImage\npublic class PostgresIntegrationTests {\n\n\t@LocalServerPort\n\tint port;\n\n\t@Autowired\n\tprivate VetRepository vets;\n\n\t@Autowired\n\tprivate RestTemplateBuilder builder;\n\n\t@BeforeAll\n\tstatic void available() {\n\t\tassumeTrue(DockerClientFactory.instance().isDockerAvailable(), \"Docker not available\");\n\t}\n\n\tpublic static void main(String[] args) {\n\t\tnew SpringApplicationBuilder(PetClinicApplication.class) //\n\t\t\t.profiles(\"postgres\") //\n\t\t\t.properties( //\n\t\t\t\t\t\"spring.docker.compose.profiles.active=postgres\" //\n\t\t\t) //\n\t\t\t.listeners(new PropertiesLogger()) //\n\t\t\t.run(args);\n\t}\n\n\t@Test\n\tvoid testFindAll() throws Exception {\n\t\tvets.findAll();\n\t\tvets.findAll(); // served from cache\n\t}\n\n\t@Test\n\tvoid testOwnerDetails() {\n\t\tRestTemplate template = builder.rootUri(\"http://localhost:\" + port).build();\n\t\tResponseEntity\u003cString\u003e result = template.exchange(RequestEntity.get(\"/owners/1\").build(), String.class);\n\t\tassertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);\n\t}\n\n\tstatic class PropertiesLogger implements ApplicationListener\u003cApplicationPreparedEvent\u003e {\n\n\t\tprivate static final Log log = LogFactory.getLog(PropertiesLogger.class);\n\n\t\tprivate ConfigurableEnvironment environment;\n\n\t\tprivate boolean isFirstRun = true;\n\n\t\t@Override\n\t\tpublic void onApplicationEvent(ApplicationPreparedEvent event) {\n\t\t\tif (isFirstRun) {\n\t\t\t\tenvironment = event.getApplicationContext().getEnvironment();\n\t\t\t\tprintProperties();\n\t\t\t}\n\t\t\tisFirstRun = false;\n\t\t}\n\n\t\tpublic void printProperties() {\n\t\t\tfor (EnumerablePropertySource\u003c?\u003e source : findPropertiesPropertySources()) {\n\t\t\t\tlog.info(\"PropertySource: \" + source.getName());\n\t\t\t\tString[] names = source.getPropertyNames();\n\t\t\t\tArrays.sort(names);\n\t\t\t\tfor (String name : names) {\n\t\t\t\t\tString resolved = environment.getProperty(name);\n\t\t\t\t\tString value = source.getProperty(name).toString();\n\t\t\t\t\tif (resolved != null \u0026\u0026 resolved.equals(value)) { // Added null check\n\t\t\t\t\t\tlog.info(name + \"=\" + resolved);\n\t\t\t\t\t}\n\t\t\t\t\telse {\n\t\t\t\t\t\tlog.info(name + \"=\" + value + \" OVERRIDDEN to \" + resolved);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\n\t\tprivate List\u003cEnumerablePropertySource\u003c?\u003e\u003e findPropertiesPropertySources() {\n\t\t\tList\u003cEnumerablePropertySource\u003c?\u003e\u003e sources = new LinkedList\u003c\u003e();\n\t\t\tfor (PropertySource\u003c?\u003e source : environment.getPropertySources()) {\n\t\t\t\tif (source instanceof EnumerablePropertySource enumerable) {\n\t\t\t\t\tsources.add(enumerable);\n\t\t\t\t}\n\t\t\t}\n\t\t\treturn sources;\n\t\t}\n\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 18695328956,
+        "EvaluatedPromptTokens": 1413,
+        "OpenAiUsage": {
+            "completion_tokens": 1378,
+            "prompt_tokens": 1442,
+            "total_tokens": 2820,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

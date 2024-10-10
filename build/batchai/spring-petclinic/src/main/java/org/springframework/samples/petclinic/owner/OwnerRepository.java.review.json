@@ -1,0 +1,37 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Incorrect usage of LIKE clause in query",
+            "detailed_explaination": "The LIKE clause in the query for findByLastName method is incorrectly formatted. The wildcard '%' should be appended to the lastName parameter, but it is currently placed outside the parameter binding.",
+            "suggestion": "Change the query to use :lastName || '%' to correctly append the wildcard to the last name parameter.",
+            "issue_line_begin": 24,
+            "issue_line_end": 29,
+            "issue_reference_urls": [
+                "https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation"
+            ],
+            "severity": "minor",
+            "severity_reason": "This issue could lead to incorrect results being returned from the database."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\npackage org.springframework.samples.petclinic.owner;\n\nimport java.util.List;\n\nimport org.springframework.data.domain.Page;\nimport org.springframework.data.domain.Pageable;\nimport org.springframework.data.jpa.repository.Query;\nimport org.springframework.data.repository.Repository;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.transaction.annotation.Transactional;\n\n/**\n * Repository class for \u003ccode\u003eOwner\u003c/code\u003e domain objects All method names are compliant\n * with Spring Data naming conventions so this interface can easily be extended for Spring\n * Data. See:\n * https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation\n *\n * @author Ken Krebs\n * @author Juergen Hoeller\n * @author Sam Brannen\n * @author Michael Isvy\n */\npublic interface OwnerRepository extends Repository\u003cOwner, Integer\u003e {\n\n\t/**\n\t * Retrieve all {@link PetType}s from the data store.\n\t * @return a Collection of {@link PetType}s.\n\t */\n\t@Query(\"SELECT ptype FROM PetType ptype ORDER BY ptype.name\")\n\t@Transactional(readOnly = true)\n\tList\u003cPetType\u003e findPetTypes();\n\n\t/**\n\t * Retrieve {@link Owner}s from the data store by last name, returning all owners\n\t * whose last name \u003ci\u003estarts\u003c/i\u003e with the given name.\n\t * @param lastName Value to search for\n\t * @return a Collection of matching {@link Owner}s (or an empty Collection if none\n\t * found)\n\t */\n\n\t@Query(\"SELECT DISTINCT owner FROM Owner owner left join  owner.pets WHERE owner.lastName LIKE CONCAT(:lastName, '%') \")\n\t@Transactional(readOnly = true)\n\tPage\u003cOwner\u003e findByLastName(@Param(\"lastName\") String lastName, Pageable pageable);\n\n\t/**\n\t * Retrieve an {@link Owner} from the data store by id.\n\t * @param id the id to search for\n\t * @return the {@link Owner} if found\n\t */\n\t@Query(\"SELECT owner FROM Owner owner left join fetch owner.pets WHERE owner.id =:id\")\n\t@Transactional(readOnly = true)\n\tOwner findById(@Param(\"id\") Integer id);\n\n\t/**\n\t * Save an {@link Owner} to the data store, either inserting or updating it.\n\t * @param owner the {@link Owner} to save\n\t */\n\tvoid save(Owner owner);\n\n\t/**\n\t * Returns all the owners from data store\n\t **/\n\t@Query(\"SELECT owner FROM Owner owner\")\n\t@Transactional(readOnly = true)\n\tPage\u003cOwner\u003e findAll(Pageable pageable);\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 12112024828,
+        "EvaluatedPromptTokens": 1127,
+        "OpenAiUsage": {
+            "completion_tokens": 869,
+            "prompt_tokens": 1135,
+            "total_tokens": 2004,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

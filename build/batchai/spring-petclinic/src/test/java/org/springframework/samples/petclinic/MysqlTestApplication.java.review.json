@@ -1,0 +1,37 @@
+{
+    "has_issue": true,
+    "overall_severity": "major",
+    "issues": [
+        {
+            "short_description": "Using an outdated MySQL version.",
+            "detailed_explaination": "The MySQL version specified in the MySQLContainer is 'mysql:9.0', which is not a valid version as of the latest specifications. The latest stable version should be used to ensure compatibility and security.",
+            "suggestion": "Update the MySQL version to a valid and stable release, such as 'mysql:8.0'.",
+            "issue_line_begin": 12,
+            "issue_line_end": 12,
+            "issue_reference_urls": [
+                "https://hub.docker.com/_/mysql"
+            ],
+            "severity": "major",
+            "severity_reason": "Using an invalid version can lead to runtime errors and security vulnerabilities."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n\npackage org.springframework.samples.petclinic;\n\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.testcontainers.service.connection.ServiceConnection;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.context.annotation.Profile;\nimport org.testcontainers.containers.MySQLContainer;\n\n/**\n * PetClinic Spring Boot Application.\n *\n * @author Dave Syer\n *\n */\n@Configuration\npublic class MysqlTestApplication {\n\n\t@ServiceConnection\n\t@Profile(\"mysql\")\n\t@Bean\n\tstatic MySQLContainer\u003c?\u003e container() {\n\t\treturn new MySQLContainer\u003c\u003e(\"mysql:8.0\"); // Updated to a valid MySQL version\n\t}\n\n\tpublic static void main(String[] args) {\n\t\tSpringApplication.run(PetClinicApplication.class, \"--spring.profiles.active=mysql\");\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 10396284254,
+        "EvaluatedPromptTokens": 752,
+        "OpenAiUsage": {
+            "completion_tokens": 493,
+            "prompt_tokens": 755,
+            "total_tokens": 1248,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

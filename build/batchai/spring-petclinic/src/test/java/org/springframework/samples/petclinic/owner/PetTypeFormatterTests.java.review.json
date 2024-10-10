@@ -1,0 +1,49 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Potential Null Pointer Exception",
+            "detailed_explaination": "In the method 'shouldParse', if 'this.pets.findPetTypes()' returns null, calling 'petTypeFormatter.parse' will lead to a Null Pointer Exception. This should be handled to ensure robustness.",
+            "suggestion": "Add a null check for the result of 'this.pets.findPetTypes()' before calling 'petTypeFormatter.parse'.",
+            "issue_line_begin": 20,
+            "issue_line_end": 20,
+            "issue_reference_urls": [
+                "https://docs.oracle.com/javase/8/docs/api/java/util/Objects.html#requireNonNull-T-"
+            ],
+            "severity": "minor",
+            "severity_reason": "This issue could lead to runtime exceptions if the method 'findPetTypes' does not return a valid collection."
+        },
+        {
+            "short_description": "Unused import statement",
+            "detailed_explaination": "The import statement for 'java.text.ParseException' is not used in the code. This can lead to confusion and should be removed.",
+            "suggestion": "Remove the unused import statement for 'java.text.ParseException'.",
+            "issue_line_begin": 7,
+            "issue_line_end": 7,
+            "issue_reference_urls": [
+                "https://www.oracle.com/java/technologies/javase/codeconventions-contents.html"
+            ],
+            "severity": "trivial",
+            "severity_reason": "While this does not affect functionality, it contributes to code clutter."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n\npackage org.springframework.samples.petclinic.owner;\n\nimport static org.assertj.core.api.Assertions.assertThat;\nimport static org.mockito.BDDMockito.given;\n\nimport java.util.ArrayList;\nimport java.util.Collection;\nimport java.util.List;\nimport java.util.Locale;\n\nimport org.junit.jupiter.api.Assertions;\nimport org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.Test;\nimport org.junit.jupiter.api.condition.DisabledInNativeImage;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.Mock;\nimport org.mockito.junit.jupiter.MockitoExtension;\n\n/**\n * Test class for {@link PetTypeFormatter}\n *\n * @author Colin But\n */\n@ExtendWith(MockitoExtension.class)\n@DisabledInNativeImage\nclass PetTypeFormatterTests {\n\n\t@Mock\n\tprivate OwnerRepository pets;\n\n\tprivate PetTypeFormatter petTypeFormatter;\n\n\t@BeforeEach\n\tvoid setup() {\n\t\tthis.petTypeFormatter = new PetTypeFormatter(pets);\n\t}\n\n\t@Test\n\tvoid testPrint() {\n\t\tPetType petType = new PetType();\n\t\tpetType.setName(\"Hamster\");\n\t\tString petTypeName = this.petTypeFormatter.print(petType, Locale.ENGLISH);\n\t\tassertThat(petTypeName).isEqualTo(\"Hamster\");\n\t}\n\n\t@Test\n\tvoid shouldParse() throws ParseException {\n\t\tgiven(this.pets.findPetTypes()).willReturn(makePetTypes());\n\t\tPetType petType = petTypeFormatter.parse(\"Bird\", Locale.ENGLISH);\n\t\tassertThat(petType.getName()).isEqualTo(\"Bird\");\n\t}\n\n\t@Test\n\tvoid shouldThrowParseException() throws ParseException {\n\t\tgiven(this.pets.findPetTypes()).willReturn(makePetTypes());\n\t\tAssertions.assertThrows(ParseException.class, () -\u003e {\n\t\t\tpetTypeFormatter.parse(\"Fish\", Locale.ENGLISH);\n\t\t});\n\t}\n\n\t/**\n\t * Helper method to produce some sample pet types just for test purpose\n\t * @return {@link Collection} of {@link PetType}\n\t */\n\tprivate List\u003cPetType\u003e makePetTypes() {\n\t\tList\u003cPetType\u003e petTypes = new ArrayList\u003c\u003e();\n\t\tpetTypes.add(new PetType() {\n\t\t\t{\n\t\t\t\tsetName(\"Dog\");\n\t\t\t}\n\t\t});\n\t\tpetTypes.add(new PetType() {\n\t\t\t{\n\t\t\t\tsetName(\"Bird\");\n\t\t\t}\n\t\t});\n\t\treturn petTypes;\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 15440262102,
+        "EvaluatedPromptTokens": 1081,
+        "OpenAiUsage": {
+            "completion_tokens": 980,
+            "prompt_tokens": 1101,
+            "total_tokens": 2081,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

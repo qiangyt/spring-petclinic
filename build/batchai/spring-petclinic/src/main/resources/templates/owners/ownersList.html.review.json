@@ -1,0 +1,49 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Incorrect use of Thymeleaf syntax for href attributes.",
+            "detailed_explaination": "The href attributes in the anchor tags use the Thymeleaf expression syntax incorrectly. The expressions should not be wrapped in double underscores. Instead, they should be written directly without the underscores.",
+            "suggestion": "Remove the double underscores from the href attributes for owner.id and currentPage variables.",
+            "issue_line_begin": 12,
+            "issue_line_end": 12,
+            "issue_reference_urls": [
+                "https://www.thymeleaf.org/doc/tutorials/3.0/using-thymeleaf.html#using-thymeleaf"
+            ],
+            "severity": "minor",
+            "severity_reason": "Incorrect syntax can lead to unexpected behavior in the application."
+        },
+        {
+            "short_description": "Potential issue with pagination links.",
+            "detailed_explaination": "The pagination links use the Thymeleaf expression syntax incorrectly by wrapping the page number in double underscores. This could lead to incorrect URL generation.",
+            "suggestion": "Remove the double underscores from the href attributes for currentPage and totalPages variables.",
+            "issue_line_begin": 34,
+            "issue_line_end": 34,
+            "issue_reference_urls": [
+                "https://www.thymeleaf.org/doc/tutorials/3.0/using-thymeleaf.html#using-thymeleaf"
+            ],
+            "severity": "minor",
+            "severity_reason": "Incorrect syntax can lead to unexpected behavior in the application."
+        }
+    ],
+    "fixed_code": "\u003c!DOCTYPE html\u003e\n\n\u003chtml xmlns:th=\"https://www.thymeleaf.org\" th:replace=\"~{fragments/layout :: layout (~{::body},'owners')}\"\u003e\n\n\u003cbody\u003e\n\n\u003ch2\u003eOwners\u003c/h2\u003e\n\n\u003ctable id=\"owners\" class=\"table table-striped\"\u003e\n  \u003cthead\u003e\n  \u003ctr\u003e\n    \u003cth style=\"width: 150px;\"\u003eName\u003c/th\u003e\n    \u003cth style=\"width: 200px;\"\u003eAddress\u003c/th\u003e\n    \u003cth\u003eCity\u003c/th\u003e\n    \u003cth style=\"width: 120px\"\u003eTelephone\u003c/th\u003e\n    \u003cth\u003ePets\u003c/th\u003e\n  \u003c/tr\u003e\n  \u003c/thead\u003e\n  \u003ctbody\u003e\n  \u003ctr th:each=\"owner : ${listOwners}\"\u003e\n    \u003ctd\u003e\n      \u003ca th:href=\"@{/owners/${owner.id}}\" th:text=\"${owner.firstName + ' ' + owner.lastName}\"/\u003e\u003c/a\u003e\n    \u003c/td\u003e\n    \u003ctd th:text=\"${owner.address}\"/\u003e\n    \u003ctd th:text=\"${owner.city}\"/\u003e\n    \u003ctd th:text=\"${owner.telephone}\"/\u003e\n    \u003ctd\u003e\u003cspan th:text=\"${#strings.listJoin(owner.pets, ', ')}\"/\u003e\u003c/td\u003e\n  \u003c/tr\u003e\n  \u003c/tbody\u003e\n\u003c/table\u003e\n\u003cdiv th:if=\"${totalPages \u003e 1}\"\u003e\n  \u003cspan\u003ePages:\u003c/span\u003e\n  \u003cspan\u003e[\u003c/span\u003e\n  \u003cspan th:each=\"i: ${#numbers.sequence(1, totalPages)}\"\u003e\n      \u003ca th:if=\"${currentPage != i}\" th:href=\"@{'/owners?page=' + ${i}}\"\u003e[[${i}]]\u003c/a\u003e\n      \u003cspan th:unless=\"${currentPage != i}\"\u003e[[${i}]]\u003c/span\u003e\n    \u003c/span\u003e\n  \u003cspan\u003e]\u0026nbsp;\u003c/span\u003e\n  \u003cspan\u003e\n      \u003ca th:if=\"${currentPage \u003e 1}\" th:href=\"@{'/owners?page=1'}\" title=\"First\"\n         class=\"fa fa-fast-backward\"\u003e\u003c/a\u003e\n      \u003cspan th:unless=\"${currentPage \u003e 1}\" title=\"First\" class=\"fa fa-fast-backward\"\u003e\u003c/span\u003e\n    \u003c/span\u003e\n  \u003cspan\u003e\n      \u003ca th:if=\"${currentPage \u003e 1}\" th:href=\"@{'/owners?page=${currentPage - 1}'}\" title=\"Previous\"\n         class=\"fa fa-step-backward\"\u003e\u003c/a\u003e\n      \u003cspan th:unless=\"${currentPage \u003e 1}\" title=\"Previous\" class=\"fa fa-step-backward\"\u003e\u003c/span\u003e\n    \u003c/span\u003e\n  \u003cspan\u003e\n      \u003ca th:if=\"${currentPage \u003c totalPages}\" th:href=\"@{'/owners?page=${currentPage + 1}'}\" title=\"Next\"\n         class=\"fa fa-step-forward\"\u003e\u003c/a\u003e\n      \u003cspan th:unless=\"${currentPage \u003c totalPages}\" title=\"Next\" class=\"fa fa-step-forward\"\u003e\u003c/span\u003e\n    \u003c/span\u003e\n  \u003cspan\u003e\n      \u003ca th:if=\"${currentPage \u003c totalPages}\" th:href=\"@{'/owners?page=${totalPages}'}\" title=\"Last\"\n         class=\"fa fa-fast-forward\"\u003e\u003c/a\u003e\n      \u003cspan th:unless=\"${currentPage \u003c totalPages}\" title=\"Last\" class=\"fa fa-step-forward\"\u003e\u003c/span\u003e\n    \u003c/span\u003e\n\u003c/div\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 13068500826,
+        "EvaluatedPromptTokens": 1131,
+        "OpenAiUsage": {
+            "completion_tokens": 1037,
+            "prompt_tokens": 1162,
+            "total_tokens": 2199,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

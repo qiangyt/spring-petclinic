@@ -1,0 +1,49 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Improper handling of empty specialties",
+            "detailed_explaination": "The current implementation does not handle the case where a veterinarian has no specialties correctly. The 'none' text is only displayed if 'nrOfSpecialties' is zero, but if there are specialties, it may not display correctly if the list is empty.",
+            "suggestion": "Consider adding a check to ensure that if 'vet.specialties' is empty, it should display 'none' instead of relying solely on 'nrOfSpecialties'.",
+            "issue_line_begin": 15,
+            "issue_line_end": 15,
+            "issue_reference_urls": [
+                "https://www.thymeleaf.org/doc/tutorials/3.0/using-thymeleaf.html#conditional-processing"
+            ],
+            "severity": "minor",
+            "severity_reason": "This issue could lead to confusion for users if veterinarians with no specialties are not displayed correctly."
+        },
+        {
+            "short_description": "Potential for incorrect page navigation",
+            "detailed_explaination": "The current implementation of page navigation does not account for the case where 'totalPages' is less than 1. This could lead to incorrect links being generated or displayed.",
+            "suggestion": "Add a check to ensure that 'totalPages' is greater than 0 before rendering the pagination controls.",
+            "issue_line_begin": 28,
+            "issue_line_end": 28,
+            "issue_reference_urls": [
+                "https://www.thymeleaf.org/doc/tutorials/3.0/using-thymeleaf.html#conditional-processing"
+            ],
+            "severity": "minor",
+            "severity_reason": "This could lead to navigation issues for users if the pagination is not handled correctly."
+        }
+    ],
+    "fixed_code": "\u003c!DOCTYPE html\u003e\n\n\u003chtml xmlns:th=\"https://www.thymeleaf.org\"\n      th:replace=\"~{fragments/layout :: layout (~{::body},'vets')}\"\u003e\n\n\u003cbody\u003e\n\n\u003ch2\u003eVeterinarians\u003c/h2\u003e\n\n\u003ctable id=\"vets\" class=\"table table-striped\"\u003e\n  \u003cthead\u003e\n  \u003ctr\u003e\n    \u003cth\u003eName\u003c/th\u003e\n    \u003cth\u003eSpecialties\u003c/th\u003e\n  \u003c/tr\u003e\n  \u003c/thead\u003e\n  \u003ctbody\u003e\n  \u003ctr th:each=\"vet : ${listVets}\"\u003e\n    \u003ctd th:text=\"${vet.firstName + ' ' + vet.lastName}\"\u003e\u003c/td\u003e\n    \u003ctd\u003e\n      \u003cspan th:if=\"${#lists.isEmpty(vet.specialties)}\"\u003enone\u003c/span\u003e\n      \u003cspan th:each=\"specialty : ${vet.specialties}\" th:text=\"${specialty.name + ' '}\"/\u003e \n    \u003c/td\u003e\n  \u003c/tr\u003e\n  \u003c/tbody\u003e\n\u003c/table\u003e\n\n\u003cdiv th:if=\"${totalPages \u003e 1}\"\u003e\n  \u003cspan\u003ePages:\u003c/span\u003e\n  \u003cspan\u003e[\u003c/span\u003e\n  \u003cspan th:each=\"i: ${#numbers.sequence(1, totalPages)}\"\u003e\n      \u003ca th:if=\"${currentPage != i}\" th:href=\"@{'/vets.html?page=__${i}__'}\"\u003e[[${i}]]\u003c/a\u003e\n      \u003cspan th:unless=\"${currentPage != i}\"\u003e[[${i}]]\u003c/span\u003e\n    \u003c/span\u003e\n  \u003cspan\u003e]\u0026nbsp;\u003c/span\u003e\n  \u003cspan th:if=\"${totalPages \u003e 0}\"\u003e\n      \u003ca th:if=\"${currentPage \u003e 1}\" th:href=\"@{'/vets.html?page=1'}\" title=\"First\"\n         class=\"fa fa-fast-backward\"\u003e\u003c/a\u003e\n      \u003cspan th:unless=\"${currentPage \u003e 1}\" title=\"First\" class=\"fa fa-fast-backward\"\u003e\u003c/span\u003e\n    \u003c/span\u003e\n  \u003cspan th:if=\"${totalPages \u003e 0}\"\u003e\n      \u003ca th:if=\"${currentPage \u003e 1}\" th:href=\"@{'/vets.html?page=__${currentPage - 1}__'}\" title=\"Previous\"\n         class=\"fa fa-step-backward\"\u003e\u003c/a\u003e\n      \u003cspan th:unless=\"${currentPage \u003e 1}\" title=\"Previous\" class=\"fa fa-step-backward\"\u003e\u003c/span\u003e\n    \u003c/span\u003e\n  \u003cspan th:if=\"${totalPages \u003e 0}\"\u003e\n      \u003ca th:if=\"${currentPage \u003c totalPages}\" th:href=\"@{'/vets.html?page=__${currentPage + 1}__'}\" title=\"Next\"\n         class=\"fa fa-step-forward\"\u003e\u003c/a\u003e\n      \u003cspan th:unless=\"${currentPage \u003c totalPages}\" title=\"Next\" class=\"fa fa-step-forward\"\u003e\u003c/span\u003e\n    \u003c/span\u003e\n  \u003cspan th:if=\"${totalPages \u003e 0}\"\u003e\n      \u003ca th:if=\"${currentPage \u003c totalPages}\" th:href=\"@{'/vets.html?page=__${totalPages}__'}\" title=\"Last\"\n         class=\"fa fa-fast-forward\"\u003e\u003c/a\u003e\n      \u003cspan th:unless=\"${currentPage \u003c totalPages}\" title=\"Last\" class=\"fa fa-fast-forward\"\u003e\u003c/span\u003e\n    \u003c/span\u003e\n  \u003c/span\u003e\n\u003c/div\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 12799755620,
+        "EvaluatedPromptTokens": 1082,
+        "OpenAiUsage": {
+            "completion_tokens": 1091,
+            "prompt_tokens": 1113,
+            "total_tokens": 2204,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

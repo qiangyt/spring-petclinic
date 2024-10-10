@@ -1,0 +1,38 @@
+{
+    "has_issue": true,
+    "overall_severity": "major",
+    "issues": [
+        {
+            "short_description": "Use of deprecated JAXB API.",
+            "detailed_explaination": "The code uses the `jakarta.xml.bind.annotation.XmlElement` annotation, which is part of the JAXB API. JAXB has been deprecated in Java SE 11 and removed in Java SE 17. This can lead to compatibility issues in future Java versions.",
+            "suggestion": "Consider using alternative libraries for XML binding, such as Jackson or Gson, which are more actively maintained and provide better support for modern Java features.",
+            "issue_line_begin": 36,
+            "issue_line_end": 36,
+            "issue_reference_urls": [
+                "https://docs.oracle.com/javase/9/docs/api/javax/xml/bind/package-summary.html",
+                "https://openjdk.java.net/jeps/392"
+            ],
+            "severity": "major",
+            "severity_reason": "The use of deprecated and removed APIs can lead to significant compatibility issues and maintenance challenges."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\npackage org.springframework.samples.petclinic.vet;\n\nimport java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.HashSet;\nimport java.util.List;\nimport java.util.Set;\n\nimport org.springframework.beans.support.MutableSortDefinition;\nimport org.springframework.beans.support.PropertyComparator;\nimport org.springframework.samples.petclinic.model.Person;\n\n// Removed JAXB import\n// import jakarta.xml.bind.annotation.XmlElement;\n\nimport jakarta.persistence.Entity;\nimport jakarta.persistence.FetchType;\nimport jakarta.persistence.JoinColumn;\nimport jakarta.persistence.JoinTable;\nimport jakarta.persistence.ManyToMany;\nimport jakarta.persistence.Table;\n\n/**\n * Simple JavaBean domain object representing a veterinarian.\n *\n * @author Ken Krebs\n * @author Juergen Hoeller\n * @author Sam Brannen\n * @author Arjen Poutsma\n */\n@Entity\n@Table(name = \"vets\")\npublic class Vet extends Person {\n\n\t@ManyToMany(fetch = FetchType.EAGER)\n\t@JoinTable(name = \"vet_specialties\", joinColumns = @JoinColumn(name = \"vet_id\"),\n\t\t\tinverseJoinColumns = @JoinColumn(name = \"specialty_id\"))\n\tprivate Set\u003cSpecialty\u003e specialties;\n\n\tprotected Set\u003cSpecialty\u003e getSpecialtiesInternal() {\n\t\tif (this.specialties == null) {\n\t\t\tthis.specialties = new HashSet\u003c\u003e();\n\t\t}\n\t\treturn this.specialties;\n\t}\n\n\tprotected void setSpecialtiesInternal(Set\u003cSpecialty\u003e specialties) {\n\t\tthis.specialties = specialties;\n\t}\n\n\t// Replaced JAXB annotation with a comment or alternative serialization method\n\t// @XmlElement\n\tpublic List\u003cSpecialty\u003e getSpecialties() {\n\t\tList\u003cSpecialty\u003e sortedSpecs = new ArrayList\u003c\u003e(getSpecialtiesInternal());\n\t\tPropertyComparator.sort(sortedSpecs, new MutableSortDefinition(\"name\", true, true));\n\t\treturn Collections.unmodifiableList(sortedSpecs);\n\t}\n\n\tpublic int getNrOfSpecialties() {\n\t\treturn getSpecialtiesInternal().size();\n\t}\n\n\tpublic void addSpecialty(Specialty specialty) {\n\t\tgetSpecialtiesInternal().add(specialty);\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 15396084059,
+        "EvaluatedPromptTokens": 1003,
+        "OpenAiUsage": {
+            "completion_tokens": 790,
+            "prompt_tokens": 1000,
+            "total_tokens": 1790,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

@@ -1,0 +1,49 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Potential Null Pointer Exception",
+            "detailed_explaination": "In the method 'findPet', if the owner is found but the petId is not found in the owner's pets, it could lead to a Null Pointer Exception when trying to return owner.getPet(petId).",
+            "suggestion": "Add a null check for the pet returned from owner.getPet(petId) to handle the case where the pet does not exist.",
+            "issue_line_begin": 39,
+            "issue_line_end": 42,
+            "issue_reference_urls": [
+                "https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html"
+            ],
+            "severity": "minor",
+            "severity_reason": "While this is a minor issue, it could lead to runtime exceptions if not handled properly."
+        },
+        {
+            "short_description": "Redundant Owner Retrieval",
+            "detailed_explaination": "In the 'processCreationForm' and 'processUpdateForm' methods, the owner is already available as a parameter, but the code retrieves the owner again from the repository. This is unnecessary and could lead to performance issues.",
+            "suggestion": "Use the owner object passed as a parameter instead of retrieving it again from the repository.",
+            "issue_line_begin": 66,
+            "issue_line_end": 66,
+            "issue_reference_urls": [
+                "https://www.baeldung.com/spring-mvc-@modelattribute"
+            ],
+            "severity": "minor",
+            "severity_reason": "This is a minor issue as it does not affect functionality but can lead to inefficiencies."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\npackage org.springframework.samples.petclinic.owner;\n\nimport java.time.LocalDate;\nimport java.util.Collection;\n\nimport org.springframework.stereotype.Controller;\nimport org.springframework.ui.ModelMap;\nimport org.springframework.util.StringUtils;\nimport org.springframework.validation.BindingResult;\nimport org.springframework.web.bind.WebDataBinder;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.InitBinder;\nimport org.springframework.web.bind.annotation.ModelAttribute;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.PostMapping;\nimport org.springframework.web.bind.annotation.RequestMapping;\n\nimport jakarta.validation.Valid;\nimport org.springframework.web.servlet.mvc.support.RedirectAttributes;\n\n/**\n * @author Juergen Hoeller\n * @author Ken Krebs\n * @author Arjen Poutsma\n */\n@Controller\n@RequestMapping(\"/owners/{ownerId}\")\nclass PetController {\n\n\tprivate static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = \"pets/createOrUpdatePetForm\";\n\n\tprivate final OwnerRepository owners;\n\n\tpublic PetController(OwnerRepository owners) {\n\t\tthis.owners = owners;\n\t}\n\n\t@ModelAttribute(\"types\")\n\tpublic Collection\u003cPetType\u003e populatePetTypes() {\n\t\treturn this.owners.findPetTypes();\n\t}\n\n\t@ModelAttribute(\"owner\")\n\tpublic Owner findOwner(@PathVariable(\"ownerId\") int ownerId) {\n\n\t\tOwner owner = this.owners.findById(ownerId);\n\t\tif (owner == null) {\n\t\t\tthrow new IllegalArgumentException(\"Owner ID not found: \" + ownerId);\n\t\t}\n\t\treturn owner;\n\t}\n\n\t@ModelAttribute(\"pet\")\n\tpublic Pet findPet(@PathVariable(\"ownerId\") int ownerId,\n\t\t\t@PathVariable(name = \"petId\", required = false) Integer petId) {\n\n\t\tif (petId == null) {\n\t\t\treturn new Pet();\n\t\t}\n\n\t\tOwner owner = this.owners.findById(ownerId);\n\t\tif (owner == null) {\n\t\t\tthrow new IllegalArgumentException(\"Owner ID not found: \" + ownerId);\n\t\t}\n\t\tPet pet = owner.getPet(petId);\n\t\tif (pet == null) {\n\t\t\tthrow new IllegalArgumentException(\"Pet ID not found: \" + petId);\n\t\t}\n\t\treturn pet;\n\t}\n\n\t@InitBinder(\"owner\")\n\tpublic void initOwnerBinder(WebDataBinder dataBinder) {\n\t\tdataBinder.setDisallowedFields(\"id\");\n\t}\n\n\t@InitBinder(\"pet\")\n\tpublic void initPetBinder(WebDataBinder dataBinder) {\n\t\tdataBinder.setValidator(new PetValidator());\n\t}\n\n\t@GetMapping(\"/pets/new\")\n\tpublic String initCreationForm(Owner owner, ModelMap model) {\n\t\tPet pet = new Pet();\n\t\towner.addPet(pet);\n\t\tmodel.put(\"pet\", pet);\n\t\treturn VIEWS_PETS_CREATE_OR_UPDATE_FORM;\n\t}\n\n\t@PostMapping(\"/pets/new\")\n\tpublic String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model,\n\t\t\tRedirectAttributes redirectAttributes) {\n\t\tif (StringUtils.hasText(pet.getName()) \u0026\u0026 pet.isNew() \u0026\u0026 owner.getPet(pet.getName(), true) != null) {\n\t\t\tresult.rejectValue(\"name\", \"duplicate\", \"already exists\");\n\t\t}\n\n\t\tLocalDate currentDate = LocalDate.now();\n\t\tif (pet.getBirthDate() != null \u0026\u0026 pet.getBirthDate().isAfter(currentDate)) {\n\t\t\tresult.rejectValue(\"birthDate\", \"typeMismatch.birthDate\");\n\t\t}\n\n\t\towner.addPet(pet);\n\t\tif (result.hasErrors()) {\n\t\t\tmodel.put(\"pet\", pet);\n\t\t\treturn VIEWS_PETS_CREATE_OR_UPDATE_FORM;\n\t\t}\n\n\t\tthis.owners.save(owner);\n\t\tredirectAttributes.addFlashAttribute(\"message\", \"New Pet has been Added\");\n\t\treturn \"redirect:/owners/{ownerId}\";\n\t}\n\n\t@GetMapping(\"/pets/{petId}/edit\")\n\tpublic String initUpdateForm(Owner owner, @PathVariable(\"petId\") int petId, ModelMap model,\n\t\t\tRedirectAttributes redirectAttributes) {\n\t\tPet pet = owner.getPet(petId);\n\t\tmodel.put(\"pet\", pet);\n\t\treturn VIEWS_PETS_CREATE_OR_UPDATE_FORM;\n\t}\n\n\t@PostMapping(\"/pets/{petId}/edit\")\n\tpublic String processUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model,\n\t\t\tRedirectAttributes redirectAttributes) {\n\n\t\tString petName = pet.getName();\n\n\t\t// checking if the pet name already exist for the owner\n\t\tif (StringUtils.hasText(petName)) {\n\t\t\tPet existingPet = owner.getPet(petName.toLowerCase(), false);\n\t\t\tif (existingPet != null \u0026\u0026 existingPet.getId() != pet.getId()) {\n\t\t\t\tresult.rejectValue(\"name\", \"duplicate\", \"already exists\");\n\t\t\t}\n\t\t}\n\n\t\tLocalDate currentDate = LocalDate.now();\n\t\tif (pet.getBirthDate() != null \u0026\u0026 pet.getBirthDate().isAfter(currentDate)) {\n\t\t\tresult.rejectValue(\"birthDate\", \"typeMismatch.birthDate\");\n\t\t}\n\n\t\tif (result.hasErrors()) {\n\t\t\tmodel.put(\"pet\", pet);\n\t\t\treturn VIEWS_PETS_CREATE_OR_UPDATE_FORM;\n\t\t}\n\n\t\towner.addPet(pet);\n\t\tthis.owners.save(owner);\n\t\tredirectAttributes.addFlashAttribute(\"message\", \"Pet details has been edited\");\n\t\treturn \"redirect:/owners/{ownerId}\";\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 21884577958,
+        "EvaluatedPromptTokens": 1643,
+        "OpenAiUsage": {
+            "completion_tokens": 1624,
+            "prompt_tokens": 1686,
+            "total_tokens": 3310,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

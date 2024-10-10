@@ -1,0 +1,37 @@
+{
+    "has_issue": true,
+    "overall_severity": "major",
+    "issues": [
+        {
+            "short_description": "Using an outdated MySQL version.",
+            "detailed_explaination": "The code specifies a MySQL version 'mysql:9.0', which does not exist. The latest stable version as of now is 'mysql:8.0'. Using a non-existent version can lead to runtime errors and unexpected behavior.",
+            "suggestion": "Update the MySQL version in the MySQLContainer instantiation to a valid version, such as 'mysql:8.0'.",
+            "issue_line_begin": 20,
+            "issue_line_end": 20,
+            "issue_reference_urls": [
+                "https://hub.docker.com/_/mysql"
+            ],
+            "severity": "major",
+            "severity_reason": "Using a non-existent version can cause the tests to fail and lead to confusion."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n\npackage org.springframework.samples.petclinic;\n\nimport static org.assertj.core.api.Assertions.assertThat;\n\nimport org.junit.jupiter.api.Test;\nimport org.junit.jupiter.api.condition.DisabledInNativeImage;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.context.SpringBootTest.WebEnvironment;\nimport org.springframework.boot.test.web.server.LocalServerPort;\nimport org.springframework.boot.testcontainers.service.connection.ServiceConnection;\nimport org.springframework.boot.web.client.RestTemplateBuilder;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.RequestEntity;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.samples.petclinic.vet.VetRepository;\nimport org.springframework.test.context.ActiveProfiles;\nimport org.springframework.test.context.aot.DisabledInAotMode;\nimport org.springframework.web.client.RestTemplate;\nimport org.testcontainers.containers.MySQLContainer;\nimport org.testcontainers.junit.jupiter.Container;\nimport org.testcontainers.junit.jupiter.Testcontainers;\n\n@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)\n@ActiveProfiles(\"mysql\")\n@Testcontainers(disabledWithoutDocker = true)\n@DisabledInNativeImage\n@DisabledInAotMode\nclass MySqlIntegrationTests {\n\n\t@ServiceConnection\n\t@Container\n\tstatic MySQLContainer\u003c?\u003e container = new MySQLContainer\u003c\u003e(\"mysql:8.0\");\n\n\t@LocalServerPort\n\tint port;\n\n\t@Autowired\n\tprivate VetRepository vets;\n\n\t@Autowired\n\tprivate RestTemplateBuilder builder;\n\n\t@Test\n\tvoid testFindAll() throws Exception {\n\t\tvets.findAll();\n\t\tvets.findAll(); // served from cache\n\t}\n\n\t@Test\n\tvoid testOwnerDetails() {\n\t\tRestTemplate template = builder.rootUri(\"http://localhost:\" + port).build();\n\t\tResponseEntity\u003cString\u003e result = template.exchange(RequestEntity.get(\"/owners/1\").build(), String.class);\n\t\tassertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 10405077804,
+        "EvaluatedPromptTokens": 969,
+        "OpenAiUsage": {
+            "completion_tokens": 732,
+            "prompt_tokens": 990,
+            "total_tokens": 1722,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

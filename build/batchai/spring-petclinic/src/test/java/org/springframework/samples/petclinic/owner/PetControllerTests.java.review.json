@@ -1,0 +1,37 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Incorrect date format in testProcessUpdateFormHasErrors",
+            "detailed_explaination": "The birth date parameter in the testProcessUpdateFormHasErrors method uses an incorrect format (YYYY/MM/DD) instead of the expected format (YYYY-MM-DD). This could lead to unexpected behavior when validating the date input.",
+            "suggestion": "Change the birth date parameter from '2015/02/12' to '2015-02-12' to match the expected format.",
+            "issue_line_begin": 85,
+            "issue_line_end": 85,
+            "issue_reference_urls": [
+                "https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#webmvc-form-validation"
+            ],
+            "severity": "minor",
+            "severity_reason": "This issue may lead to incorrect validation results, but it does not cause a failure in the test itself."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n\npackage org.springframework.samples.petclinic.owner;\n\nimport org.assertj.core.util.Lists;\nimport org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.Test;\nimport org.junit.jupiter.api.condition.DisabledInNativeImage;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.annotation.FilterType;\nimport org.springframework.test.context.aot.DisabledInAotMode;\nimport org.springframework.test.web.servlet.MockMvc;\n\nimport static org.mockito.BDDMockito.given;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;\n\n/**\n * Test class for the {@link PetController}\n *\n * @author Colin But\n */\n@WebMvcTest(value = PetController.class,\n\t\tincludeFilters = @ComponentScan.Filter(value = PetTypeFormatter.class, type = FilterType.ASSIGNABLE_TYPE))\n@DisabledInNativeImage\n@DisabledInAotMode\nclass PetControllerTests {\n\n\tprivate static final int TEST_OWNER_ID = 1;\n\n\tprivate static final int TEST_PET_ID = 1;\n\n\t@Autowired\n\tprivate MockMvc mockMvc;\n\n\t@MockBean\n\tprivate OwnerRepository owners;\n\n\t@BeforeEach\n\tvoid setup() {\n\t\tPetType cat = new PetType();\n\t\tcat.setId(3);\n\t\tcat.setName(\"hamster\");\n\t\tgiven(this.owners.findPetTypes()).willReturn(Lists.newArrayList(cat));\n\t\tOwner owner = new Owner();\n\t\tPet pet = new Pet();\n\t\towner.addPet(pet);\n\t\tpet.setId(TEST_PET_ID);\n\t\tgiven(this.owners.findById(TEST_OWNER_ID)).willReturn(owner);\n\t}\n\n\t@Test\n\tvoid testInitCreationForm() throws Exception {\n\t\tmockMvc.perform(get(\"/owners/{ownerId}/pets/new\", TEST_OWNER_ID))\n\t\t\t.andExpect(status().isOk())\n\t\t\t.andExpect(view().name(\"pets/createOrUpdatePetForm\"))\n\t\t\t.andExpect(model().attributeExists(\"pet\"));\n\t}\n\n\t@Test\n\tvoid testProcessCreationFormSuccess() throws Exception {\n\t\tmockMvc\n\t\t\t.perform(post(\"/owners/{ownerId}/pets/new\", TEST_OWNER_ID).param(\"name\", \"Betty\")\n\t\t\t\t.param(\"type\", \"hamster\")\n\t\t\t\t.param(\"birthDate\", \"2015-02-12\"))\n\t\t\t.andExpect(status().is3xxRedirection())\n\t\t\t.andExpect(view().name(\"redirect:/owners/{ownerId}\"));\n\t}\n\n\t@Test\n\tvoid testProcessCreationFormHasErrors() throws Exception {\n\t\tmockMvc\n\t\t\t.perform(post(\"/owners/{ownerId}/pets/new\", TEST_OWNER_ID).param(\"name\", \"Betty\")\n\t\t\t\t.param(\"birthDate\", \"2015-02-12\"))\n\t\t\t.andExpect(model().attributeHasNoErrors(\"owner\"))\n\t\t\t.andExpect(model().attributeHasErrors(\"pet\"))\n\t\t\t.andExpect(model().attributeHasFieldErrors(\"pet\", \"type\"))\n\t\t\t.andExpect(model().attributeHasFieldErrorCode(\"pet\", \"type\", \"required\"))\n\t\t\t.andExpect(status().isOk())\n\t\t\t.andExpect(view().name(\"pets/createOrUpdatePetForm\"));\n\t}\n\n\t@Test\n\tvoid testInitUpdateForm() throws Exception {\n\t\tmockMvc.perform(get(\"/owners/{ownerId}/pets/{petId}/edit\", TEST_OWNER_ID, TEST_PET_ID))\n\t\t\t.andExpect(status().isOk())\n\t\t\t.andExpect(model().attributeExists(\"pet\"))\n\t\t\t.andExpect(view().name(\"pets/createOrUpdatePetForm\"));\n\t}\n\n\t@Test\n\tvoid testProcessUpdateFormSuccess() throws Exception {\n\t\tmockMvc\n\t\t\t.perform(post(\"/owners/{ownerId}/pets/{petId}/edit\", TEST_OWNER_ID, TEST_PET_ID).param(\"name\", \"Betty\")\n\t\t\t\t.param(\"type\", \"hamster\")\n\t\t\t\t.param(\"birthDate\", \"2015-02-12\"))\n\t\t\t.andExpect(status().is3xxRedirection())\n\t\t\t.andExpect(view().name(\"redirect:/owners/{ownerId}\"));\n\t}\n\n\t@Test\n\tvoid testProcessUpdateFormHasErrors() throws Exception {\n\t\tmockMvc\n\t\t\t.perform(post(\"/owners/{ownerId}/pets/{petId}/edit\", TEST_OWNER_ID, TEST_PET_ID).param(\"name\", \"Betty\")\n\t\t\t\t.param(\"birthDate\", \"2015-02-12\")) // Fixed date format\n\t\t\t.andExpect(model().attributeHasNoErrors(\"owner\"))\n\t\t\t.andExpect(model().attributeHasErrors(\"pet\"))\n\t\t\t.andExpect(status().isOk())\n\t\t\t.andExpect(view().name(\"pets/createOrUpdatePetForm\"));\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 18047688299,
+        "EvaluatedPromptTokens": 1598,
+        "OpenAiUsage": {
+            "completion_tokens": 1387,
+            "prompt_tokens": 1630,
+            "total_tokens": 3017,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

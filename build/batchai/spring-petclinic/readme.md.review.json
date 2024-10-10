@@ -1,0 +1,24 @@
+{
+    "has_issue": false,
+    "overall_severity": "trivial",
+    "issues": [],
+    "fixed_code": "",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 930409179,
+        "EvaluatedPromptTokens": 2807,
+        "OpenAiUsage": {
+            "completion_tokens": 28,
+            "prompt_tokens": 2821,
+            "total_tokens": 2849,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

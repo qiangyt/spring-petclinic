@@ -1,0 +1,50 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Missing form validation for last name input",
+            "detailed_explaination": "The input field for last name does not have any validation attributes such as 'required' or 'pattern' to ensure that the user provides a valid last name. This could lead to issues with form submission if the field is left empty or contains invalid characters.",
+            "suggestion": "Add validation attributes to the input field for last name to ensure proper user input.",
+            "issue_line_begin": 10,
+            "issue_line_end": 10,
+            "issue_reference_urls": [
+                "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-required",
+                "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-pattern"
+            ],
+            "severity": "minor",
+            "severity_reason": "While the form can still function without validation, it may lead to poor user experience and data integrity issues."
+        },
+        {
+            "short_description": "Inconsistent use of Bootstrap classes",
+            "detailed_explaination": "The form uses Bootstrap classes for layout, but the 'control-group' class is not a standard Bootstrap class in version 4 and above. This could lead to unexpected layout issues.",
+            "suggestion": "Replace 'control-group' with 'form-group' to maintain consistency with Bootstrap's grid system.",
+            "issue_line_begin": 8,
+            "issue_line_end": 8,
+            "issue_reference_urls": [
+                "https://getbootstrap.com/docs/4.0/components/forms/#form-groups"
+            ],
+            "severity": "minor",
+            "severity_reason": "Using outdated or incorrect class names can lead to layout issues and confusion for developers maintaining the code."
+        }
+    ],
+    "fixed_code": "\u003chtml xmlns:th=\"https://www.thymeleaf.org\"\n  th:replace=\"~{fragments/layout :: layout (~{::body},'owners')}\"\u003e\n\n\u003cbody\u003e\n\n  \u003ch2\u003eFind Owners\u003c/h2\u003e\n\n  \u003cform th:object=\"${owner}\" th:action=\"@{/owners}\" method=\"get\"\n    class=\"form-horizontal\" id=\"search-owner-form\"\u003e\n    \u003cdiv class=\"form-group\"\u003e\n      \u003cdiv class=\"form-group\" id=\"lastNameGroup\"\u003e\n        \u003clabel class=\"col-sm-2 control-label\"\u003eLast name \u003c/label\u003e\n        \u003cdiv class=\"col-sm-10\"\u003e\n          \u003cinput class=\"form-control\" th:field=\"*{lastName}\" size=\"30\"\n            maxlength=\"80\" required /\u003e \u003cspan class=\"help-inline\"\u003e\u003cdiv\n              th:if=\"${#fields.hasAnyErrors()}\"\u003e\n              \u003cp th:each=\"err : ${#fields.allErrors()}\" th:text=\"${err}\"\u003eError\u003c/p\u003e\n            \u003c/div\u003e\u003c/span\u003e\n        \u003c/div\u003e\n      \u003c/div\u003e\n    \u003c/div\u003e\n    \u003cdiv class=\"form-group\"\u003e\n      \u003cdiv class=\"col-sm-offset-2 col-sm-10\"\u003e\n        \u003cbutton type=\"submit\" class=\"btn btn-primary\"\u003eFind\n          Owner\u003c/button\u003e\n      \u003c/div\u003e\n    \u003c/div\u003e\n\n    \u003ca class=\"btn btn-primary\" th:href=\"@{/owners/new}\"\u003eAdd Owner\u003c/a\u003e\n\n  \u003c/form\u003e\n\n\u003c/body\u003e\n\u003c/html\u003e\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 10652760207,
+        "EvaluatedPromptTokens": 762,
+        "OpenAiUsage": {
+            "completion_tokens": 700,
+            "prompt_tokens": 768,
+            "total_tokens": 1468,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

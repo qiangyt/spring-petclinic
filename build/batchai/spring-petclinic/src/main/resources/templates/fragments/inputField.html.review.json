@@ -1,0 +1,49 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Improper use of Thymeleaf syntax for field binding.",
+            "detailed_explaination": "The use of '__${name}__' in th:field is incorrect. Thymeleaf expects a valid expression for field binding, and the underscores are not necessary. This could lead to unexpected behavior when trying to bind the form field to the model attribute.",
+            "suggestion": "Change 'th:field='*{__${name}__}' to 'th:field='*{${name}}'.",
+            "issue_line_begin": 9,
+            "issue_line_end": 9,
+            "issue_reference_urls": [
+                "https://www.thymeleaf.org/doc/articles/springmvc.html#form-binding"
+            ],
+            "severity": "minor",
+            "severity_reason": "This issue could lead to incorrect data binding in the form."
+        },
+        {
+            "short_description": "Missing input type for 'date' case.",
+            "detailed_explaination": "The input type for the 'date' case is set correctly, but it is important to ensure that the date format is compatible with the expected format in the backend. If the backend expects a specific date format, it should be validated.",
+            "suggestion": "Ensure that the backend can handle the date format provided by the input field.",
+            "issue_line_begin": 11,
+            "issue_line_end": 11,
+            "issue_reference_urls": [
+                "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date"
+            ],
+            "severity": "minor",
+            "severity_reason": "While the input type is correct, the potential for format mismatch could lead to issues in data processing."
+        }
+    ],
+    "fixed_code": "\u003chtml\u003e\n\u003cbody\u003e\n  \u003cform\u003e\n    \u003cth:block th:fragment=\"input (label, name, type)\"\u003e\n      \u003cdiv th:with=\"valid=${!#fields.hasErrors(name)}\"\n        th:class=\"${'form-group' + (valid ? '' : ' has-error')}\"\n        class=\"form-group\"\u003e\n        \u003clabel class=\"col-sm-2 control-label\" th:text=\"${label}\"\u003eLabel\u003c/label\u003e\n        \u003cdiv class=\"col-sm-10\"\u003e\n            \u003cdiv th:switch=\"${type}\"\u003e\n                \u003cinput th:case=\"'text'\" class=\"form-control\" type=\"text\" th:field=\"*{${name}}\" /\u003e\n                \u003cinput th:case=\"'date'\" class=\"form-control\" type=\"date\" th:field=\"*{${name}}\"/\u003e\n            \u003c/div\u003e\n          \u003cspan th:if=\"${valid}\"\n            class=\"fa fa-ok form-control-feedback\"\n            aria-hidden=\"true\"\u003e\u003c/span\u003e\n          \u003cth:block th:if=\"${!valid}\"\u003e\n            \u003cspan\n              class=\"fa fa-remove form-control-feedback\"\n              aria-hidden=\"true\"\u003e\u003c/span\u003e\n            \u003cspan class=\"help-inline\" th:errors=\"*{${name}}\"\u003eError\u003c/span\u003e\n          \u003c/th:block\u003e\n        \u003c/div\u003e\n      \u003c/div\u003e\n    \u003c/th:block\u003e\n  \u003c/form\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 9884066374,
+        "EvaluatedPromptTokens": 747,
+        "OpenAiUsage": {
+            "completion_tokens": 669,
+            "prompt_tokens": 751,
+            "total_tokens": 1420,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

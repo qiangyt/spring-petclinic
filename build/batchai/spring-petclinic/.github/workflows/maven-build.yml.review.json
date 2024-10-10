@@ -1,0 +1,50 @@
+{
+    "has_issue": true,
+    "overall_severity": "major",
+    "issues": [
+        {
+            "short_description": "Inconsistent use of quotes in YAML",
+            "detailed_explaination": "The YAML file uses both single quotes and double quotes inconsistently. This can lead to confusion and potential parsing issues in some YAML parsers.",
+            "suggestion": "Use a consistent quoting style throughout the YAML file, preferably double quotes for strings.",
+            "issue_line_begin": 9,
+            "issue_line_end": 9,
+            "issue_reference_urls": [
+                "https://yaml.org/spec/1.2/spec.html#id2761915"
+            ],
+            "severity": "minor",
+            "severity_reason": "Inconsistent quoting style can lead to confusion, but does not prevent the YAML from functioning."
+        },
+        {
+            "short_description": "Use of deprecated action versions",
+            "detailed_explaination": "The actions 'actions/checkout' and 'actions/setup-java' are using version v4, which is not a stable release. It's recommended to use a specific version or a stable release tag to avoid unexpected changes.",
+            "suggestion": "Change the action versions to a stable release, such as 'actions/checkout@v2' and 'actions/setup-java@v2'.",
+            "issue_line_begin": 10,
+            "issue_line_end": 12,
+            "issue_reference_urls": [
+                "https://github.com/actions/checkout/releases",
+                "https://github.com/actions/setup-java/releases"
+            ],
+            "severity": "major",
+            "severity_reason": "Using deprecated or unstable versions can lead to unexpected behavior in the CI/CD pipeline."
+        }
+    ],
+    "fixed_code": "# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time\n# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven\n\nname: Java CI with Maven\n\non:\n  push:\n    branches: [ main ]\n  pull_request:\n    branches: [ main ]\n\njobs:\n  build:\n\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        java: [ \"17\" ]\n\n    steps:\n      - uses: actions/checkout@v2\n      - name: Set up JDK ${{matrix.java}}\n        uses: actions/setup-java@v2\n        with:\n          java-version: ${{matrix.java}}\n          distribution: 'adopt'\n          cache: maven\n      - name: Build with Maven Wrapper\n        run: ./mvnw -B package\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 9577311327,
+        "EvaluatedPromptTokens": 644,
+        "OpenAiUsage": {
+            "completion_tokens": 557,
+            "prompt_tokens": 651,
+            "total_tokens": 1208,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

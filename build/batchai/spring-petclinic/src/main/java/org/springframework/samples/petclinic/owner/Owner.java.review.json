@@ -1,0 +1,37 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Missing validation for telephone number length.",
+            "detailed_explaination": "The @Pattern annotation for the telephone field only checks if the number is a 10-digit number. However, it does not ensure that the length of the telephone number is exactly 10 digits. This could lead to incorrect data being accepted if the input is not validated properly.",
+            "suggestion": "Consider adding a length validation to ensure that the telephone number is exactly 10 digits long, in addition to the existing pattern validation.",
+            "issue_line_begin": 15,
+            "issue_line_end": 15,
+            "issue_reference_urls": [
+                "https://docs.oracle.com/javaee/7/api/javax/validation/constraints/Size.html"
+            ],
+            "severity": "minor",
+            "severity_reason": "While the pattern checks for a 10-digit number, it does not enforce the length requirement explicitly."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\npackage org.springframework.samples.petclinic.owner;\n\nimport java.util.ArrayList;\nimport java.util.List;\n\nimport org.springframework.core.style.ToStringCreator;\nimport org.springframework.samples.petclinic.model.Person;\nimport org.springframework.util.Assert;\n\nimport jakarta.persistence.CascadeType;\nimport jakarta.persistence.Column;\nimport jakarta.persistence.Entity;\nimport jakarta.persistence.FetchType;\nimport jakarta.persistence.JoinColumn;\nimport jakarta.persistence.OneToMany;\nimport jakarta.persistence.OrderBy;\nimport jakarta.persistence.Table;\nimport jakarta.validation.constraints.Pattern;\nimport jakarta.validation.constraints.NotBlank;\nimport jakarta.validation.constraints.Size;\n\n/**\n * Simple JavaBean domain object representing an owner.\n *\n * @author Ken Krebs\n * @author Juergen Hoeller\n * @author Sam Brannen\n * @author Michael Isvy\n * @author Oliver Drotbohm\n */\n@Entity\n@Table(name = \"owners\")\npublic class Owner extends Person {\n\n\t@Column(name = \"address\")\n\t@NotBlank\n\tprivate String address;\n\n\t@Column(name = \"city\")\n\t@NotBlank\n\tprivate String city;\n\n\t@Column(name = \"telephone\")\n\t@NotBlank\n\t@Size(min = 10, max = 10, message = \"Telephone must be exactly 10 digits long\")\n\t@Pattern(regexp = \"\\\\d{10}\", message = \"Telephone must be a 10-digit number\")\n\tprivate String telephone;\n\n\t@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)\n\t@JoinColumn(name = \"owner_id\")\n\t@OrderBy(\"name\")\n\tprivate final List\u003cPet\u003e pets = new ArrayList\u003c\u003e();\n\n\tpublic String getAddress() {\n\t\treturn this.address;\n\t}\n\n\tpublic void setAddress(String address) {\n\t\tthis.address = address;\n\t}\n\n\tpublic String getCity() {\n\t\treturn this.city;\n\t}\n\n\tpublic void setCity(String city) {\n\t\tthis.city = city;\n\t}\n\n\tpublic String getTelephone() {\n\t\treturn this.telephone;\n\t}\n\n\tpublic void setTelephone(String telephone) {\n\t\tthis.telephone = telephone;\n\t}\n\n\tpublic List\u003cPet\u003e getPets() {\n\t\treturn this.pets;\n\t}\n\n\tpublic void addPet(Pet pet) {\n\t\tif (pet.isNew()) {\n\t\t\tgetPets().add(pet);\n\t\t}\n\t}\n\n\t/**\n\t * Return the Pet with the given name, or null if none found for this Owner.\n\t * @param name to test\n\t * @return a pet if pet name is already in use\n\t */\n\tpublic Pet getPet(String name) {\n\t\treturn getPet(name, false);\n\t}\n\n\t/**\n\t * Return the Pet with the given id, or null if none found for this Owner.\n\t * @param id to test\n\t * @return a pet if pet id is already in use\n\t */\n\tpublic Pet getPet(Integer id) {\n\t\tfor (Pet pet : getPets()) {\n\t\t\tif (!pet.isNew()) {\n\t\t\t\tInteger compId = pet.getId();\n\t\t\t\tif (compId.equals(id)) {\n\t\t\t\t\treturn pet;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\treturn null;\n\t}\n\n\t/**\n\t * Return the Pet with the given name, or null if none found for this Owner.\n\t * @param name to test\n\t * @return a pet if pet name is already in use\n\t */\n\tpublic Pet getPet(String name, boolean ignoreNew) {\n\t\tname = name.toLowerCase();\n\t\tfor (Pet pet : getPets()) {\n\t\t\tString compName = pet.getName();\n\t\t\tif (compName != null \u0026\u0026 compName.equalsIgnoreCase(name)) {\n\t\t\t\tif (!ignoreNew || !pet.isNew()) {\n\t\t\t\t\treturn pet;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\treturn null;\n\t}\n\n\t@Override\n\tpublic String toString() {\n\t\treturn new ToStringCreator(this).append(\"id\", this.getId())\n\t\t\t.append(\"new\", this.isNew())\n\t\t\t.append(\"lastName\", this.getLastName())\n\t\t\t.append(\"firstName\", this.getFirstName())\n\t\t\t.append(\"address\", this.address)\n\t\t\t.append(\"city\", this.city)\n\t\t\t.append(\"telephone\", this.telephone)\n\t\t\t.toString();\n\t}\n\n\t/**\n\t * Adds the given {@link Visit} to the {@link Pet} with the given identifier.\n\t * @param petId the identifier of the {@link Pet}, must not be {@literal null}.\n\t * @param visit the visit to add, must not be {@literal null}.\n\t */\n\tpublic void addVisit(Integer petId, Visit visit) {\n\n\t\tAssert.notNull(petId, \"Pet identifier must not be null!\");\n\t\tAssert.notNull(visit, \"Visit must not be null!\");\n\n\t\tPet pet = getPet(petId);\n\n\t\tAssert.notNull(pet, \"Invalid Pet identifier!\");\n\n\t\tpet.addVisit(visit);\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 15384383965,
+        "EvaluatedPromptTokens": 1540,
+        "OpenAiUsage": {
+            "completion_tokens": 1345,
+            "prompt_tokens": 1558,
+            "total_tokens": 2903,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

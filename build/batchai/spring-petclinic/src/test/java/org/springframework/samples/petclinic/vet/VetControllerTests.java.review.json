@@ -1,0 +1,49 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Use of deprecated AssertJ utility class",
+            "detailed_explaination": "The code uses 'org.assertj.core.util.Lists', which is a deprecated utility class in AssertJ. It is recommended to use 'java.util.List' or 'java.util.ArrayList' instead for creating lists.",
+            "suggestion": "Replace 'org.assertj.core.util.Lists.newArrayList()' with 'new ArrayList\u003c\u003e()' or 'Arrays.asList()' as appropriate.",
+            "issue_line_begin": 16,
+            "issue_line_end": 16,
+            "issue_reference_urls": [
+                "https://assertj.github.io/doc/#assertj-core-deprecations"
+            ],
+            "severity": "minor",
+            "severity_reason": "Using deprecated classes can lead to issues in future updates and should be avoided."
+        },
+        {
+            "short_description": "Potential NullPointerException in setup method",
+            "detailed_explaination": "The setup method assumes that 'this.vets.findAll()' will always return a non-null value. If it returns null, it could lead to a NullPointerException when the returned value is used in 'Lists.newArrayList()'.",
+            "suggestion": "Ensure that 'this.vets.findAll()' cannot return null, or add a null check before using the result.",
+            "issue_line_begin": 28,
+            "issue_line_end": 28,
+            "issue_reference_urls": [
+                "https://docs.oracle.com/javase/8/docs/api/java/util/Objects.html#requireNonNull-T-"
+            ],
+            "severity": "minor",
+            "severity_reason": "NullPointerExceptions can cause runtime failures, which should be avoided."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n\npackage org.springframework.samples.petclinic.vet;\n\nimport org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.Test;\nimport org.junit.jupiter.api.condition.DisabledInNativeImage;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.data.domain.PageImpl;\nimport org.springframework.data.domain.Pageable;\nimport org.springframework.http.MediaType;\nimport org.springframework.test.context.aot.DisabledInAotMode;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.test.web.servlet.ResultActions;\nimport org.springframework.test.web.servlet.request.MockMvcRequestBuilders;\n\nimport static org.mockito.ArgumentMatchers.any;\nimport static org.mockito.BDDMockito.given;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\n\n/**\n * Test class for the {@link VetController}\n */\n\n@WebMvcTest(VetController.class)\n@DisabledInNativeImage\n@DisabledInAotMode\nclass VetControllerTests {\n\n\t@Autowired\n\tprivate MockMvc mockMvc;\n\n\t@MockBean\n\tprivate VetRepository vets;\n\n\tprivate Vet james() {\n\t\tVet james = new Vet();\n\t\tjames.setFirstName(\"James\");\n\t\tjames.setLastName(\"Carter\");\n\t\tjames.setId(1);\n\t\treturn james;\n\t}\n\n\tprivate Vet helen() {\n\t\tVet helen = new Vet();\n\t\thelen.setFirstName(\"Helen\");\n\t\thelen.setLastName(\"Leary\");\n\t\thelen.setId(2);\n\t\tSpecialty radiology = new Specialty();\n\t\tradiology.setId(1);\n\t\tradiology.setName(\"radiology\");\n\t\thelen.addSpecialty(radiology);\n\t\treturn helen;\n\t}\n\n\t@BeforeEach\n\tvoid setup() {\n\t\tgiven(this.vets.findAll()).willReturn(new ArrayList\u003c\u003e(List.of(james(), helen())));\n\t\tgiven(this.vets.findAll(any(Pageable.class)))\n\t\t\t.willReturn(new PageImpl\u003cVet\u003e(new ArrayList\u003c\u003e(List.of(james(), helen()))));\n\n\t}\n\n\t@Test\n\tvoid testShowVetListHtml() throws Exception {\n\n\t\tmockMvc.perform(MockMvcRequestBuilders.get(\"/vets.html?page=1\"))\n\t\t\t.andExpect(status().isOk())\n\t\t\t.andExpect(model().attributeExists(\"listVets\"))\n\t\t\t.andExpect(view().name(\"vets/vetList\"));\n\n\t}\n\n\t@Test\n\tvoid testShowResourcesVetList() throws Exception {\n\t\tResultActions actions = mockMvc.perform(get(\"/vets\").accept(MediaType.APPLICATION_JSON))\n\t\t\t.andExpect(status().isOk());\n\t\tactions.andExpect(content().contentType(MediaType.APPLICATION_JSON))\n\t\t\t.andExpect(jsonPath(\"$.vetList[0].id\").value(1));\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 14798693921,
+        "EvaluatedPromptTokens": 1169,
+        "OpenAiUsage": {
+            "completion_tokens": 1112,
+            "prompt_tokens": 1199,
+            "total_tokens": 2311,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

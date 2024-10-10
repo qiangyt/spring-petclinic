@@ -1,0 +1,49 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Missing validation for birthDate",
+            "detailed_explaination": "The setBirthDate method does not validate the input date. It is important to ensure that the birth date is not set to a future date, as this would be logically incorrect for a pet's birth date.",
+            "suggestion": "Add validation in the setBirthDate method to check if the provided birth date is not in the future.",
+            "issue_line_begin": 20,
+            "issue_line_end": 20,
+            "issue_reference_urls": [
+                "https://www.baeldung.com/java-date-validation"
+            ],
+            "severity": "minor",
+            "severity_reason": "While this issue does not cause a compilation error, it can lead to logical errors in the application."
+        },
+        {
+            "short_description": "Potential NullPointerException in getType",
+            "detailed_explaination": "The getType method can return null if the type has not been set. This could lead to a NullPointerException if the returned value is used without a null check.",
+            "suggestion": "Consider adding a null check or returning an Optional\u003cPetType\u003e to handle cases where the type may not be set.",
+            "issue_line_begin": 27,
+            "issue_line_end": 27,
+            "issue_reference_urls": [
+                "https://www.baeldung.com/java-optional"
+            ],
+            "severity": "minor",
+            "severity_reason": "This could lead to runtime exceptions if not handled properly."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\npackage org.springframework.samples.petclinic.owner;\n\nimport java.time.LocalDate;\nimport java.util.Collection;\nimport java.util.LinkedHashSet;\nimport java.util.Set;\n\nimport org.springframework.format.annotation.DateTimeFormat;\nimport org.springframework.samples.petclinic.model.NamedEntity;\n\nimport jakarta.persistence.CascadeType;\nimport jakarta.persistence.Column;\nimport jakarta.persistence.Entity;\nimport jakarta.persistence.FetchType;\nimport jakarta.persistence.JoinColumn;\nimport jakarta.persistence.ManyToOne;\nimport jakarta.persistence.OneToMany;\nimport jakarta.persistence.OrderBy;\nimport jakarta.persistence.Table;\n\n/**\n * Simple business object representing a pet.\n *\n * @author Ken Krebs\n * @author Juergen Hoeller\n * @author Sam Brannen\n */\n@Entity\n@Table(name = \"pets\")\npublic class Pet extends NamedEntity {\n\n\t@Column(name = \"birth_date\")\n\t@DateTimeFormat(pattern = \"yyyy-MM-dd\")\n\tprivate LocalDate birthDate;\n\n\t@ManyToOne\n\t@JoinColumn(name = \"type_id\")\n\tprivate PetType type;\n\n\t@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)\n\t@JoinColumn(name = \"pet_id\")\n\t@OrderBy(\"visit_date ASC\")\n\tprivate final Set\u003cVisit\u003e visits = new LinkedHashSet\u003c\u003e();\n\n\tpublic void setBirthDate(LocalDate birthDate) {\n\t\tif (birthDate != null \u0026\u0026 birthDate.isAfter(LocalDate.now())) {\n\t\t\tthrow new IllegalArgumentException(\"Birth date cannot be in the future\");\n\t\t}\n\t\tthis.birthDate = birthDate;\n\t}\n\n\tpublic LocalDate getBirthDate() {\n\t\treturn this.birthDate;\n\t}\n\n\tpublic PetType getType() {\n\t\treturn this.type;\n\t}\n\n\tpublic void setType(PetType type) {\n\t\tthis.type = type;\n\t}\n\n\tpublic Collection\u003cVisit\u003e getVisits() {\n\t\treturn this.visits;\n\t}\n\n\tpublic void addVisit(Visit visit) {\n\t\tgetVisits().add(visit);\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 11468383699,
+        "EvaluatedPromptTokens": 951,
+        "OpenAiUsage": {
+            "completion_tokens": 874,
+            "prompt_tokens": 958,
+            "total_tokens": 1832,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

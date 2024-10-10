@@ -1,0 +1,37 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Incorrect image source path",
+            "detailed_explaination": "The image source path in the \u003cimg\u003e tag is set to a relative path ('../static/resources/images/pets.png') which may not resolve correctly depending on the context in which the HTML is served. This can lead to broken images when the application is deployed.",
+            "suggestion": "Use the Thymeleaf syntax for the image source to ensure the correct path is generated. Change the src attribute to use th:src instead of a static relative path.",
+            "issue_line_begin": 8,
+            "issue_line_end": 8,
+            "issue_reference_urls": [
+                "https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#using-thymeleaf"
+            ],
+            "severity": "minor",
+            "severity_reason": "This issue can lead to a poor user experience if images do not load correctly."
+        }
+    ],
+    "fixed_code": "\u003c!DOCTYPE html\u003e\n\n\u003chtml xmlns:th=\"https://www.thymeleaf.org\" th:replace=\"~{fragments/layout :: layout (~{::body},'home')}\"\u003e\n\n  \u003cbody\u003e\n\n    \u003ch2 th:text=\"#{welcome}\"\u003eWelcome\u003c/h2\u003e\n    \u003cdiv class=\"row\"\u003e\n        \u003cdiv class=\"col-md-12\"\u003e\n          \u003cimg class=\"img-responsive\" th:src=\"@{/resources/images/pets.png}\"/\u003e\n        \u003c/div\u003e\n    \u003c/div\u003e\n\n  \u003c/body\u003e\n\n\u003c/html\u003e\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 4226459256,
+        "EvaluatedPromptTokens": 576,
+        "OpenAiUsage": {
+            "completion_tokens": 344,
+            "prompt_tokens": 580,
+            "total_tokens": 924,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

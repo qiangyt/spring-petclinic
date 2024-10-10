@@ -1,0 +1,35 @@
+{
+    "has_issue": true,
+    "overall_severity": "trivial",
+    "issues": [
+        {
+            "short_description": "Incorrect spelling in class-level comment.",
+            "detailed_explaination": "The comment describing the Person class contains a typo: 'an person' should be 'a person'. This could lead to confusion for developers reading the code.",
+            "suggestion": "Correct the typo in the comment to improve clarity.",
+            "issue_line_begin": 16,
+            "issue_line_end": 16,
+            "issue_reference_urls": [],
+            "severity": "trivial",
+            "severity_reason": "This issue is related to documentation and does not affect the functionality of the code."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\npackage org.springframework.samples.petclinic.model;\n\nimport jakarta.persistence.Column;\nimport jakarta.persistence.MappedSuperclass;\nimport jakarta.validation.constraints.NotBlank;\n\n/**\n * Simple JavaBean domain object representing a person.\n *\n * @author Ken Krebs\n */\n@MappedSuperclass\npublic class Person extends BaseEntity {\n\n\t@Column(name = \"first_name\")\n\t@NotBlank\n\tprivate String firstName;\n\n\t@Column(name = \"last_name\")\n\t@NotBlank\n\tprivate String lastName;\n\n\tpublic String getFirstName() {\n\t\treturn this.firstName;\n\t}\n\n\tpublic void setFirstName(String firstName) {\n\t\tthis.firstName = firstName;\n\t}\n\n\tpublic String getLastName() {\n\t\treturn this.lastName;\n\t}\n\n\tpublic void setLastName(String lastName) {\n\t\tthis.lastName = lastName;\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 5959328206,
+        "EvaluatedPromptTokens": 757,
+        "OpenAiUsage": {
+            "completion_tokens": 466,
+            "prompt_tokens": 769,
+            "total_tokens": 1235,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

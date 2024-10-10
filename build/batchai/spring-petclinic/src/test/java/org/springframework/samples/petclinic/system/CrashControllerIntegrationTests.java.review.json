@@ -1,0 +1,37 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Use of deprecated method",
+            "detailed_explaination": "The method 'List.of()' is used in the code, which is a part of Java 9 and later. If the project is intended to support earlier versions of Java, this could lead to compatibility issues.",
+            "suggestion": "Consider using 'Arrays.asList()' instead for compatibility with earlier Java versions.",
+            "issue_line_begin": 49,
+            "issue_line_end": 49,
+            "issue_reference_urls": [
+                "https://docs.oracle.com/javase/9/docs/api/java/util/List.html#of-E..."
+            ],
+            "severity": "minor",
+            "severity_reason": "While this is not a critical issue, it may affect compatibility with older Java versions."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n\npackage org.springframework.samples.petclinic.system;\n\nimport static org.assertj.core.api.Assertions.assertThat;\nimport static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;\n\nimport java.util.Arrays; // Added import for Arrays\nimport java.util.List;\nimport java.util.Map;\n\nimport org.junit.jupiter.api.Test;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;\nimport org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;\nimport org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.core.ParameterizedTypeReference;\nimport org.springframework.http.HttpEntity;\nimport org.springframework.http.HttpHeaders;\nimport org.springframework.http.HttpMethod;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.MediaType;\nimport org.springframework.http.RequestEntity;\nimport org.springframework.http.ResponseEntity;\n\n/**\n * Integration Test for {@link CrashController}.\n *\n * @author Alex Lutz\n */\n// NOT Waiting https://github.com/spring-projects/spring-boot/issues/5574\n@SpringBootTest(webEnvironment = RANDOM_PORT,\n\t\tproperties = { \"server.error.include-message=ALWAYS\", \"management.endpoints.enabled-by-default=false\" })\nclass CrashControllerIntegrationTests {\n\n\t@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,\n\t\t\tDataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })\n\tstatic class TestConfiguration {\n\n\t}\n\n\t@Value(value = \"${local.server.port}\")\n\tprivate int port;\n\n\t@Autowired\n\tprivate TestRestTemplate rest;\n\n\t@Test\n\tvoid testTriggerExceptionJson() {\n\t\tResponseEntity\u003cMap\u003cString, Object\u003e\u003e resp = rest.exchange(\n\t\t\t\tRequestEntity.get(\"http://localhost:\" + port + \"/oups\").build(),\n\t\t\t\tnew ParameterizedTypeReference\u003cMap\u003cString, Object\u003e\u003e() {\n\t\t\t\t});\n\t\tassertThat(resp).isNotNull();\n\t\tassertThat(resp.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);\n\t\tassertThat(resp.getBody()).containsKey(\"timestamp\");\n\t\tassertThat(resp.getBody()).containsKey(\"status\");\n\t\tassertThat(resp.getBody()).containsKey(\"error\");\n\t\tassertThat(resp.getBody()).containsEntry(\"message\",\n\t\t\t\t\"Expected: controller used to showcase what happens when an exception is thrown\");\n\t\tassertThat(resp.getBody()).containsEntry(\"path\", \"/oups\");\n\t}\n\n\t@Test\n\tvoid testTriggerExceptionHtml() {\n\t\tHttpHeaders headers = new HttpHeaders();\n\t\theaders.setAccept(Arrays.asList(MediaType.TEXT_HTML)); // Changed to Arrays.asList\n\t\tResponseEntity\u003cString\u003e resp = rest.exchange(\"http://localhost:\" + port + \"/oups\", HttpMethod.GET,\n\t\t\t\tnew HttpEntity\u003c\u003e(headers), String.class);\n\t\tassertThat(resp).isNotNull();\n\t\tassertThat(resp.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);\n\t\tassertThat(resp.getBody()).isNotNull();\n\t\t// html:\n\t\tassertThat(resp.getBody()).containsSubsequence(\"\u003cbody\u003e\", \"\u003ch2\u003e\", \"Something happened...\", \"\u003c/h2\u003e\", \"\u003cp\u003e\",\n\t\t\t\t\"Expected:\", \"controller\", \"used\", \"to\", \"showcase\", \"what\", \"happens\", \"when\", \"an\", \"exception\", \"is\",\n\t\t\t\t\"thrown\", \"\u003c/p\u003e\", \"\u003c/body\u003e\");\n\t\t// Not the whitelabel error page:\n\t\tassertThat(resp.getBody()).doesNotContain(\"Whitelabel Error Page\",\n\t\t\t\t\"This application has no explicit mapping for\");\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 15217295177,
+        "EvaluatedPromptTokens": 1274,
+        "OpenAiUsage": {
+            "completion_tokens": 1077,
+            "prompt_tokens": 1328,
+            "total_tokens": 2405,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}

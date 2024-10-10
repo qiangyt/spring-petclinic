@@ -1,0 +1,37 @@
+{
+    "has_issue": true,
+    "overall_severity": "minor",
+    "issues": [
+        {
+            "short_description": "Missing null checks for Owner and Pet objects",
+            "detailed_explaination": "In the init method, the Owner and Pet objects are instantiated but not checked for null before being used. This could lead to NullPointerExceptions if the objects are not properly initialized.",
+            "suggestion": "Add null checks after instantiating Owner and Pet objects to ensure they are not null before proceeding with further operations.",
+            "issue_line_begin": 21,
+            "issue_line_end": 24,
+            "issue_reference_urls": [
+                "https://docs.oracle.com/javase/8/docs/api/java/util/Objects.html#requireNonNull-T-"
+            ],
+            "severity": "minor",
+            "severity_reason": "While this issue may not always lead to a crash, it is a good practice to ensure that objects are properly initialized before use."
+        }
+    ],
+    "fixed_code": "/*\n * Copyright 2012-2019 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n\npackage org.springframework.samples.petclinic.owner;\n\nimport static org.mockito.BDDMockito.given;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;\n\nimport org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.Test;\nimport org.junit.jupiter.api.condition.DisabledInNativeImage;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.context.aot.DisabledInAotMode;\nimport org.springframework.test.web.servlet.MockMvc;\n\n/**\n * Test class for {@link VisitController}\n *\n * @author Colin But\n */\n@WebMvcTest(VisitController.class)\n@DisabledInNativeImage\n@DisabledInAotMode\nclass VisitControllerTests {\n\n\tprivate static final int TEST_OWNER_ID = 1;\n\n\tprivate static final int TEST_PET_ID = 1;\n\n\t@Autowired\n\tprivate MockMvc mockMvc;\n\n\t@MockBean\n\tprivate OwnerRepository owners;\n\n\t@BeforeEach\n\tvoid init() {\n\t\tOwner owner = new Owner();\n\t\tPet pet = new Pet();\n\t\tif (owner != null \u0026\u0026 pet != null) {\n\t\t\towner.addPet(pet);\n\t\t\tpet.setId(TEST_PET_ID);\n\t\t\tgiven(this.owners.findById(TEST_OWNER_ID)).willReturn(owner);\n\t\t}\n\t}\n\n\t@Test\n\tvoid testInitNewVisitForm() throws Exception {\n\t\tmockMvc.perform(get(\"/owners/{ownerId}/pets/{petId}/visits/new\", TEST_OWNER_ID, TEST_PET_ID))\n\t\t\t.andExpect(status().isOk())\n\t\t\t.andExpect(view().name(\"pets/createOrUpdateVisitForm\"));\n\t}\n\n\t@Test\n\tvoid testProcessNewVisitFormSuccess() throws Exception {\n\t\tmockMvc\n\t\t\t.perform(post(\"/owners/{ownerId}/pets/{petId}/visits/new\", TEST_OWNER_ID, TEST_PET_ID)\n\t\t\t\t.param(\"name\", \"George\")\n\t\t\t\t.param(\"description\", \"Visit Description\"))\n\t\t\t.andExpect(status().is3xxRedirection())\n\t\t\t.andExpect(view().name(\"redirect:/owners/{ownerId}\"));\n\t}\n\n\t@Test\n\tvoid testProcessNewVisitFormHasErrors() throws Exception {\n\t\tmockMvc\n\t\t\t.perform(post(\"/owners/{ownerId}/pets/{petId}/visits/new\", TEST_OWNER_ID, TEST_PET_ID).param(\"name\",\n\t\t\t\t\t\"George\"))\n\t\t\t.andExpect(model().attributeHasErrors(\"visit\"))\n\t\t\t.andExpect(status().isOk())\n\t\t\t.andExpect(view().name(\"pets/createOrUpdateVisitForm\"));\n\t}\n\n}\n",
+    "path": "",
+    "model_usage_metrics": {
+        "Duration": 12021048343,
+        "EvaluatedPromptTokens": 1164,
+        "OpenAiUsage": {
+            "completion_tokens": 943,
+            "prompt_tokens": 1181,
+            "total_tokens": 2124,
+            "completion_tokens_details": {
+                "audio_tokens": 0,
+                "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+            }
+        }
+    }
+}
