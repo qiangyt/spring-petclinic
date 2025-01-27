@@ -43,4 +43,5 @@ class CrashController {
 		// Log the exception and return an error view
 		return "error"; // Assuming there is an error.html view to display
 	}
+
 }

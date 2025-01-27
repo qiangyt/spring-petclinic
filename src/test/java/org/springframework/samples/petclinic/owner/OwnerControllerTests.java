@@ -83,14 +83,14 @@ class OwnerControllerTests {
 		max.setBirthDate(LocalDate.now());
 		george.addPet(max);
 		max.setId(1);
-		
+
 		// Ensure getPet() does not return null
 		if (george.getPet("Max") != null) {
 			Visit visit = new Visit();
 			visit.setDate(LocalDate.now());
 			george.getPet("Max").getVisits().add(visit);
 		}
-		
+
 		return george;
 	}
 
