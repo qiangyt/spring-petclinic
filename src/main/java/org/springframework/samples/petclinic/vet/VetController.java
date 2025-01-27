@@ -48,7 +48,7 @@ class VetController {
 		Vets vets = new Vets();
 		Page<Vet> paginated = findPaginated(page);
 		if (paginated != null) {
-			vets.getVetList().addAll(paginated.toList());
+			vets.getVets().addAll(paginated.toList());
 		}
 		return addPaginationModel(page, paginated, model);
 	}
@@ -73,7 +73,7 @@ class VetController {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
-		vets.getVetList().addAll(this.vetRepository.findAll());
+		vets.getVets().addAll(this.vetRepository.findAll());
 		return vets;
 	}
 
